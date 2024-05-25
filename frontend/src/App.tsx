@@ -1,44 +1,55 @@
 import './Components/graph.css';
-import {useEffect, useState} from "react";
 import {Graph} from "./Components/Graph.tsx";
+import {Panel} from "./Components/panel.tsx";
+import {DrawGraph} from "./Components/draw-graph.tsx";
+import {ShowGraph} from "./Components/show-graph.tsx";
+import {useEffect, useState} from "react";
 
-async function getImage(xy:string, f:string) {
-  return await fetch("/image?" + new URLSearchParams({xy: xy, f: f}).toString());
+export type zArray = [number, number][]
+
+export type zLabeledStrokes = [number, zArray][]
+
+async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | null> {
+    try {
+        const response = await fetch("/strokes?" + new URLSearchParams({f: f}).toString(), {
+            method: 'POST',
+            body: JSON.stringify({z})
+        });
+        console.log(response)
+        return response.json()
+    } catch (e) {
+        throw e;
+    }
 }
 
-const xyStrings = ["x^2-y^2=0", "x^2+y^2=1"];
 const fStrings = ["f(z)=2z+1", "f(z)=exp(z)", "f(z)=ln(z)"];
 
 function App() {
-    const [xy, setxy] = useState(xyStrings[0]);
-    const [f, setf] = useState(fStrings[0]);
-    const [graph1, setgraph1] = useState<string>("");
-    const [graph2, setgraph2] = useState<string>("");
+    const [f, setf] = useState(fStrings[1]);
+    const [strokes, setStrokes] = useState<zLabeledStrokes|null>(null);
+    const [strokesRes, setStrokesRes] = useState<zLabeledStrokes>([]);
 
-  useEffect(() => {
-    getImage(xy, f).then(res => res.json()).then(res => {
-      if (res) {
-          setgraph1(res[0]);
-          setgraph2(res[1]);
-      }
-      console.log(res)
-    });
-    }, [xy, setxy, f, setf, graph1, graph2, setgraph1, setgraph2]);
+    useEffect(() => {
+        strokes && getStrokes(strokes, f).then(res => {
+            if (res) {
+                setStrokesRes(res);
+            }
+        })
+    }, [strokes, f]);
 
-  return (
-    <div style={{display: "flex"}}>
-      <Graph
-          imgString={graph1}
-          onChange={val => setxy(val)}
-          options={xyStrings}
-      />
-      <Graph
-          imgString={graph2}
-          onChange={val => setf(val)}
-          options={fStrings}
-      />
-    </div>
-  );
+    return (
+        <div className={"control-container"}>
+            <Panel/>
+            <div className={"graphs-container"}>
+                <Graph>
+                    <DrawGraph graphHeight={20} graphWidth={20} onChangeStrokes={(stks)=>setStrokes(stks)}/>
+                </Graph>
+                <Graph>
+                    <ShowGraph strokes={strokesRes}/>
+                </Graph>
+            </div>
+        </div>
+    );
 }
 
 export default App;

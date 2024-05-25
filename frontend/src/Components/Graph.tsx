@@ -1,20 +1,15 @@
-type Props = {
-    imgString: string;
-    onChange: (value: string)=>void;
-    options?: string[];
-}
+import {PropsWithChildren} from "react";
 
-export function Graph(props: Props): React.JSX.Element {
-    const handleInputValue: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
-      props.onChange(e.target.value);
-    };
+type GraphProps = PropsWithChildren<{}>
+
+export function Graph(props: GraphProps): JSX.Element {
+
     return (
         <div>
-            <select onChange={handleInputValue}>
-                {props.options?.map(option => (<option>{option}</option>))}
-            </select>
-            <div className={"graph_box"}>
-                <img src={`data:image/svg+xml;utf8,${encodeURIComponent(props.imgString)}`}/>
+            <div className={"graph-box"}>
+                <div className={'graph-grid graph-window'}/>
+                <div className={'graph-axis graph-window'}/>
+                {props.children}
             </div>
         </div>
     );
