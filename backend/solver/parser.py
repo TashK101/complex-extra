@@ -207,10 +207,10 @@ class Parser:
 
         # func1 ( exp )
         res, rest = Parser._get_expression(tokens[2:-1])
-        if len(res.value) != 0 and len(rest) == 0:
+        if tokens[0].type == TokenType.FUNC1 and len(res.value) != 0 and len(rest) == 0:
             return True, Expression([*tokens[:2], res, tokens[-1]], ExpressionType.FUNC)
 
-        if rest[0].type != TokenType.SEPAR:
+        if rest[0].type != TokenType.SEPAR or tokens[0].type != TokenType.FUNC2:
             return False, None  # wrong syntax
 
         tokens = [*tokens[:2], res, *rest]
