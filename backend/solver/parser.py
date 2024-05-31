@@ -14,14 +14,14 @@ def keyword_comparator(a, b):
 
 class TokenType(Enum):
     NONE = -1
-    UNARY = 0  # unary operator, like a minus
-    BINARY = 1  # binary operator. Those go between numbers and variables
+    UNARY = 0  # unary operator, for example a minus
+    BINARY = 1  # binary operator. Can be between parts of expression
     SEPAR = 2  # separator, a comma
     COMPAR = 3  # comparators. Must be between equations, no more that one per equation
     PARL = 4  # left parenthesis
-    PARR = 5  # right
-    FUNC1 = 6  # function with one argument. Next comes an equation in parentheses
-    FUNC2 = 7  # function with two arguments. Next comes two equations in parentheses, with a comma between
+    PARR = 5  # right parenthesis
+    FUNC1 = 6  # function with one argument. Next comes an expression in parentheses
+    FUNC2 = 7  # function with two arguments. Next comes two expressions in parentheses, with a comma between
     VAR = 8  # variable, one letter
     NUM = 9  # number
     CONST = 10  # constant
@@ -33,16 +33,16 @@ class ExpressionType(Enum):
         value:      2 constant
                     3 variable
 
-                    1 function1 par_left expression par_right
-        function:   2 function2 par_left expression separator expression par_right
+                    1 function1 left-parenthesis expression right-parenthesis
+        function:   2 function2 left-parenthesis expression separator expression right-parenthesis
 
                     1 value
                     2 function
-        expression: 3 unary expression
-                    4 par_left expression par_right
-                    5 expression binary expression
+        expression: 3 unary_operator expression
+                    4 left-parenthesis expression right-parenthesis
+                    5 expression binary_operator expression
 
-        equation:   1 expression comp expression
+        equation:   1 expression comparator expression (not implemented)
     """
     NONE = -1
     VAL = 0

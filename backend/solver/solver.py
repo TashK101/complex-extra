@@ -1,9 +1,8 @@
 import cmath
-import math
 import numpy as np
 from typing import Callable
 
-from parser import Expression, Token, TokenType, ExpressionType, Parser
+from .parser import Expression, Token, TokenType, ExpressionType, Parser
 
 
 class Solver:
@@ -16,19 +15,19 @@ class Solver:
     @staticmethod
     def get_solution(exp: Expression) -> Callable[[complex], complex]:
         if exp.type == ExpressionType.VAL:
-            return Solver.get_solution_for_val(exp.value)
+            return Solver._get_solution_for_val(exp.value)
         if exp.type == ExpressionType.FUNC:
-            return Solver.get_solution_for_func(exp.value)
+            return Solver._get_solution_for_func(exp.value)
         if exp.type == ExpressionType.UNARY:
-            return Solver.get_solution_for_unary(exp.value)
+            return Solver._get_solution_for_unary(exp.value)
         if exp.type == ExpressionType.PAR:
-            return Solver.get_solution_for_par(exp.value)
+            return Solver._get_solution_for_par(exp.value)
         if exp.type == ExpressionType.BINARY:
-            return Solver.get_solution_for_binary(exp.value)
-        raise ValueError(f'Not sopported expression type: {exp.type}')
+            return Solver._get_solution_for_binary(exp.value)
+        raise ValueError(f'Not supported expression type: {exp.type}')
 
     @staticmethod
-    def get_solution_for_val(exp: list[Expression | Token]) -> Callable[[complex], complex]:
+    def _get_solution_for_val(exp: list[Expression | Token]) -> Callable[[complex], complex]:
         value = exp[0].value
         e_type = exp[0].type
         if e_type == TokenType.CONST:
@@ -47,7 +46,7 @@ class Solver:
 
     # 'real', 'im', 'sin', 'cos', 'tg', 'asin', 'acos', 'atg', 'ln', 'abs', 'phi'
     @staticmethod
-    def get_func1(f_name) -> Callable[[complex], complex]:
+    def _get_func1(f_name) -> Callable[[complex], complex]:
         if f_name == 'real':
             return lambda z: z.real
         if f_name == 'im':
@@ -74,23 +73,23 @@ class Solver:
 
     # log
     @staticmethod
-    def get_func2(f_name):
+    def _get_func2(f_name):
         if f_name == 'log':
             return lambda x, y: np.log(x+0j) / np.log(y+0j)
         raise ValueError(f'Unknown func: {f_name}')
 
     @staticmethod
-    def get_solution_for_func(exp: list[Expression | Token]) -> Callable[[complex], complex]:
+    def _get_solution_for_func(exp: list[Expression | Token]) -> Callable[[complex], complex]:
         if exp[0].type == TokenType.FUNC1:
-            solve = Solver.get_func1(exp[0].value)  # func ( exp )
+            solve = Solver._get_func1(exp[0].value)  # func ( exp )
             return lambda z: solve((Solver.get_solution(exp[2]))(z))
         elif exp[0].type == TokenType.FUNC2:
             solve1 = Solver.get_solution(exp[2])
             solve2 = Solver.get_solution(exp[4])  # func ( exp , exp )
-            return lambda z: Solver.get_func2(exp[0].value)(solve1(z), solve2(z))
+            return lambda z: Solver._get_func2(exp[0].value)(solve1(z), solve2(z))
 
     @staticmethod
-    def get_solution_for_unary(exp: list[Expression | Token]) -> Callable[[complex], complex]:
+    def _get_solution_for_unary(exp: list[Expression | Token]) -> Callable[[complex], complex]:
         value = exp[0].value
         e_type = exp[0].type
         if e_type == TokenType.UNARY:
@@ -99,18 +98,18 @@ class Solver:
         raise ValueError(f'Not implemented: {value}')
 
     @staticmethod
-    def get_solution_for_par(exp: list[Expression | Token]) -> Callable[[complex], complex]:
+    def _get_solution_for_par(exp: list[Expression | Token]) -> Callable[[complex], complex]:
         value = exp[0].value
         if exp[0].type == TokenType.PARL and exp[2].type == TokenType.PARR:
             return lambda z: Solver.get_solution(exp[1])(z)
         raise ValueError(f'Not implemented: {value}')
 
     @staticmethod
-    def get_solution_for_binary(exp: list[Expression | Token]) -> Callable[[complex], complex]:
+    def _get_solution_for_binary(exp: list[Expression | Token]) -> Callable[[complex], complex]:
         if exp[1].type == TokenType.BINARY:
             op = exp[1].value
             solve1 = Solver.get_solution(exp[0])
-            solve2 = Solver.get_solution(exp[2])  # exp op exp
+            solve2 = Solver.get_solution(exp[2])
             if op == '+':
                 return lambda z: solve1(z) + solve2(z)
             if op == '-':
