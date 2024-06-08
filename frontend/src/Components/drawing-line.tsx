@@ -13,5 +13,5 @@ export const DrawingLine = ({height, width, graphHeight, graphWidth, line}: Draw
         return `${(p[0] + graphWidth / 2) * pixelsInCellW} ${(-p[1] + graphHeight / 2) * pixelsInCellH}`
     })
         .join(" L ");
-    return <path className="path" d={pathData} fill={'transparent'} stroke={'black'} strokeWidth={3}/>;
+    return (<path className="path" d={pathData} fill={'transparent'} stroke={'black'} strokeWidth={3}/>);
 }

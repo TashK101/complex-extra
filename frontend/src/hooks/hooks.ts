@@ -6,11 +6,13 @@ export const useMousePosition = (includeTouch: boolean) => {
     useEffect(() => {
         const updateMousePosition = (ev: MouseEvent|TouchEvent) => {
             let x, y;
-            if (ev instanceof TouchEvent) {
+            if (window.TouchEvent && ev instanceof TouchEvent) {
                 const touch = ev.touches[0];
                 [x, y] = [touch.clientX, touch.clientY];
-            } else {
+            } else if (ev instanceof MouseEvent) {
                 [x, y] = [ev.clientX, ev.clientY];
+            } else {
+                [x, y] = [null, null]
             }
             setMousePosition({ x, y });
         };
@@ -43,6 +45,6 @@ export const useBoxRect = (boxRef: RefObject<HTMLElement>): {height: number, wid
             setBoxX(rect.x);
             setBoxY(rect.y);
         }
-    });
+    }, [boxRef]);
     return {height, width, boxX, boxY};
 }

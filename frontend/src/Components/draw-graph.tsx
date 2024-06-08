@@ -36,7 +36,7 @@ export function DrawGraph(props: Props): JSX.Element {
             setCursorY(null);
             setCursorX(null);
         }
-    }, [x, y, height, width, boxX, boxY, mouseDown, strokeNumber]);
+    }, [x, y, height, width, boxX, boxY, mouseDown, strokeNumber, props.graphHeight, props.graphWidth]);
 
     function handleMouseDown() {
         setMouseDown(true);
@@ -58,6 +58,8 @@ export function DrawGraph(props: Props): JSX.Element {
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
+            onTouchStart={handleMouseDown}
+            onTouchEnd={handleMouseUp}
         >
             <div className={'graph-cursor-x'} style={{
                 position: 'absolute',
