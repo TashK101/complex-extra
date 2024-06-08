@@ -1,7 +1,7 @@
-import {useBoxRect, useMousePosition} from "../hooks/hooks.ts";
+import {useBoxRect, useMousePosition} from "../../hooks/hooks.ts";
 import {useEffect, useRef, useState} from "react";
-import {DrawingLine} from "./drawing-line.tsx";
-import {zArray, zLabeledStrokes} from "../App.tsx";
+import {DrawingLine} from "./Drawing/DrawingLine.tsx";
+import {zArray, zLabeledStrokes} from "../../App.tsx";
 
 type Props = {
     graphWidth: number,
@@ -9,7 +9,7 @@ type Props = {
     onChangeStrokes: (strokes: zLabeledStrokes) => void,
 }
 
-export function DrawGraph(props: Props): JSX.Element {
+export function DrawingPlane(props: Props): JSX.Element {
     const boxRef = useRef<HTMLDivElement>(null);
     const {x, y} = useMousePosition(true);
     const {height, width, boxX, boxY} = useBoxRect(boxRef);

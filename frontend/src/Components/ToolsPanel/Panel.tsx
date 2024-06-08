@@ -1,9 +1,9 @@
-import {IconPencilSharp} from "../Icons/IconPencilSharp.tsx";
-import {IconShapeLine} from "../Icons/IconShapeLine.tsx";
-import {IconShapeOval1} from "../Icons/IconShapeOval1.tsx";
-import {IconShapeRectangle} from "../Icons/IconShapeRectangle.tsx";
-import {IconEraser} from "../Icons/IconEraser.tsx";
-import {IconTrash} from "../Icons/IconTrash.tsx";
+import {IconPencilSharp} from "../../Icons/IconPencilSharp.tsx";
+import {IconShapeLine} from "../../Icons/IconShapeLine.tsx";
+import {IconShapeOval1} from "../../Icons/IconShapeOval1.tsx";
+import {IconShapeRectangle} from "../../Icons/IconShapeRectangle.tsx";
+import {IconEraser} from "../../Icons/IconEraser.tsx";
+import {IconTrash} from "../../Icons/IconTrash.tsx";
 
 export function Panel(): React.JSX.Element {
     return (

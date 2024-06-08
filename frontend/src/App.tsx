@@ -1,8 +1,9 @@
-import './Components/graph.css';
-import {Graph} from "./Components/Graph.tsx";
-import {Panel} from "./Components/panel.tsx";
-import {DrawGraph} from "./Components/draw-graph.tsx";
-import {ShowGraph} from "./Components/show-graph.tsx";
+import './Components/Graph/graph.css';
+import {Graph} from "./Components/Graph/Graph.tsx";
+import './Components/ToolsPanel/tools.css'
+import {Panel} from "./Components/ToolsPanel/Panel.tsx";
+import {DrawingPlane} from "./Components/Graph/DrawingPlane.tsx";
+import {ResultPlane} from "./Components/Graph/ResultPlane.tsx";
 import {useEffect, useState} from "react";
 
 export type zArray = [number, number][]
@@ -46,13 +47,13 @@ function App() {
             <Panel/>
             <div className={"graphs-container"}>
                 <Graph>
-                    <DrawGraph
+                    <DrawingPlane
                         graphHeight={20}
                         graphWidth={20}
                         onChangeStrokes={(stks) => setStrokes(stks)}/>
                 </Graph>
                 <Graph>
-                    <ShowGraph strokes={strokesRes}/>
+                    <ResultPlane strokes={strokesRes}/>
                 </Graph>
             </div>
             <form className={'function-form'}>

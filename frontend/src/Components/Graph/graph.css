@@ -1,0 +1,56 @@
+.graphs-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.graph-box {
+    border: 5px solid var(--accent-color);
+    border-radius: var(--border-radius);
+    min-width: 400px;
+    width: 40vw;
+    max-width: 80vw;
+    margin: 10px;
+    aspect-ratio: 1/1;
+    position: relative;
+}
+
+.graph-window{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.graph-grid {
+    background-size: 5% 5%;
+    background-image:
+            linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+            linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+    z-index: -2;
+}
+
+.graph-axis {
+    background-image:
+            linear-gradient(to right, transparent calc(50% - 1px), var(--axis-color) calc(50%), transparent calc(50% + 1px)),
+            linear-gradient(to bottom, transparent calc(50% - 1px), var(--axis-color) calc(50%), transparent calc(50% + 1px));
+    z-index: -1;
+}
+
+.function-form {
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius);
+    border: var(--accent-color-light) 5px solid;
+    height: fit-content;
+    padding: 10px;
+    display: flex;
+    position: fixed;
+    top:0;
+    right:0;
+}
+
+.function-button {
+    border-radius: var(--border-radius);
+    background-color: var(--accent-color);
+    color: white;
+}
