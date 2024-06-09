@@ -1,13 +1,13 @@
 import {useBoxRect} from "../../hooks/hooks.ts";
 import {useRef} from "react";
 import {DrawingLine} from "./Drawing/DrawingLine.tsx";
-import {zLabeledStrokes} from "../../App.tsx";
+import {Line} from "../../types/lines.ts";
 
 const graphWidth = 20;
 const graphHeight = 20;
 
 type Props = {
-    strokes: zLabeledStrokes,
+    lines: Line[],
 }
 
 export function ResultPlane(props: Props): JSX.Element {
@@ -17,14 +17,15 @@ export function ResultPlane(props: Props): JSX.Element {
     return (
         <div className={'graph-show graph-window'} ref={boxRef}>
             <svg style={{height: '100%', width: '100%'}}>
-                {props.strokes.map( ms => ms[1] && ms[1].length > 0 && (
+                {props.lines.map( line => (
                     <DrawingLine
-                        key={ms[0]}
-                        line={ms[1]}
+                        key={line.id}
+                        line={line.values}
                         height={height}
                         width={width}
                         graphHeight={graphHeight}
                         graphWidth={graphWidth}
+                        color={line.color}
                     />
                 ))}
             </svg>

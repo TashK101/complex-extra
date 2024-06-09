@@ -33,11 +33,12 @@
     border-radius: var(--border-radius);
 }
 
-.panel-tool {
+.tool-button {
     width: 80%;
     margin: 10%;
     aspect-ratio: 1/1;
     border: 1px solid var(--accent-color);
+    background-color: var(--accent-color-light);
     border-radius: var(--border-radius);
     display: flex;
     justify-content: center;
@@ -54,6 +55,14 @@
     fill: var(--bg-color);
 }
 
-.panel-tool:hover {
+.tool-button:hover {
+    background-color: var(--accent-color);
+}
+
+.tool-button:active {
+    background-color: var(--select-color);
+}
+
+.tool-button-active {
     background-color: var(--accent-color);
 }

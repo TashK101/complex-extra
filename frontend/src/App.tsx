@@ -1,14 +1,12 @@
 import './Components/Graph/graph.css';
 import {Graph} from "./Components/Graph/Graph.tsx";
-import './Components/ToolsPanel/tools.css'
 import {Panel} from "./Components/ToolsPanel/Panel.tsx";
 import {DrawingPlane} from "./Components/Graph/DrawingPlane.tsx";
 import {ResultPlane} from "./Components/Graph/ResultPlane.tsx";
 import {useEffect, useState} from "react";
-
-export type zArray = [number, number][]
-
-export type zLabeledStrokes = [number, zArray][]
+import {zLabeledStrokes} from "./types/lines.ts";
+import {useAppDispatch, useAppSelector} from "./hooks";
+import {addResult, changeFunction} from "./store/action.ts";
 
 async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | null> {
     try {
@@ -24,18 +22,23 @@ async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStroke
 }
 
 function App() {
-    const [f, setf] = useState('z');
-    const [strokes, setStrokes] = useState<zLabeledStrokes | null>(null);
-    const [strokesRes, setStrokesRes] = useState<zLabeledStrokes>([]);
     const [input, setInput] = useState('z');
 
+    const lines = useAppSelector(state => state.lines);
+    const result = useAppSelector(state => state.result);
+    const f = useAppSelector(state => state.function);
+    const dispatch = useAppDispatch();
+
     useEffect(() => {
-        strokes && getStrokes(strokes, f).then(res => {
+        lines.length > 0 && getStrokes(lines.map((line) => [line.id, line.values]), f).then(res => {
             if (res) {
-                setStrokesRes(res);
+                dispatch(addResult(res.map(([id, value]) => {
+                    const proto = lines.filter(l => l.id === id)[0];
+                    return { id: id, values: value, color: proto.color, type: proto.type };
+                })));
             }
         })
-    }, [strokes, f]);
+    }, [lines, f]);
 
     function handleInputChange(evt: React.ChangeEvent<HTMLInputElement>) {
         const {value} = evt.target;
@@ -50,12 +53,13 @@ function App() {
                     <DrawingPlane
                         graphHeight={20}
                         graphWidth={20}
-                        onChangeStrokes={(stks) => setStrokes(stks)}/>
+                    />
                 </Graph>
                 <Graph>
-                    <ResultPlane strokes={strokesRes}/>
+                    <ResultPlane lines={result}/>
                 </Graph>
             </div>
+
             <form className={'function-form'}>
                 <span>f=</span>
                 <input
@@ -69,7 +73,7 @@ function App() {
                     className={'function-button'}
                     onClick={(evt) => {
                         evt.preventDefault();
-                        setf(input)
+                        dispatch(changeFunction(input))
                 }}
                 >Посчитать</button>
             </form>

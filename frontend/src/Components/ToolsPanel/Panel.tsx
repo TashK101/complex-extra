@@ -1,35 +1,35 @@
+import './tools.css'
 import {IconPencilSharp} from "../../Icons/IconPencilSharp.tsx";
 import {IconShapeLine} from "../../Icons/IconShapeLine.tsx";
 import {IconShapeOval1} from "../../Icons/IconShapeOval1.tsx";
 import {IconShapeRectangle} from "../../Icons/IconShapeRectangle.tsx";
 import {IconEraser} from "../../Icons/IconEraser.tsx";
-import {IconTrash} from "../../Icons/IconTrash.tsx";
+import {ToolButton} from "./ToolButton.tsx";
+import {Tool} from "../../types/const.ts";
+import {ColorButton} from "./ColorButton.tsx";
+import {DeleteButton} from "./DeleteButton.tsx";
 
 export function Panel(): React.JSX.Element {
     return (
         <>
             <div className={"control-panel"}>
-                <div className={"panel-tool"} title={'Рисовать'}>
+                <ToolButton tool={Tool.Pencil} description={'Рисовать'}>
                     <IconPencilSharp/>
-                </div>
-                <div className={"panel-tool"} title={'Отрезок'}>
+                </ToolButton>
+                <ToolButton tool={Tool.Line} description={'Отрезок'}>
                     <IconShapeLine/>
-                </div>
-                <div className={"panel-tool"} title={'Эллипс'}>
+                </ToolButton>
+                <ToolButton tool={Tool.Ellipse} description={'Эллипс'}>
                     <IconShapeOval1/>
-                </div>
-                <div className={"panel-tool"} title={'Прямоугольник'}>
+                </ToolButton>
+                <ToolButton tool={Tool.Rectangle} description={'Прямоугольник'}>
                     <IconShapeRectangle/>
-                </div>
-                <div className={"panel-tool"} title={'Стереть'}>
+                </ToolButton>
+                <ToolButton tool={Tool.Eraser} description={'Стереть'}>
                     <IconEraser/>
-                </div>
-                <div className={"panel-tool"} title={'Очистить'}>
-                    <IconTrash/>
-                </div>
-                <div className={"panel-tool"} title={'Цвет'}>
-                    <input type={'color'} className={'color-tool'}/>
-                </div>
+                </ToolButton>
+                <DeleteButton/>
+                <ColorButton/>
             </div>
             <div className={"control-placeholder"}/>
         </>

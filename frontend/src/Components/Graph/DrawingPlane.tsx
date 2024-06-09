@@ -1,12 +1,14 @@
 import {useBoxRect, useMousePosition} from "../../hooks/hooks.ts";
 import {useEffect, useRef, useState} from "react";
 import {DrawingLine} from "./Drawing/DrawingLine.tsx";
-import {zArray, zLabeledStrokes} from "../../App.tsx";
+import {useAppDispatch, useAppSelector} from "../../hooks";
+import {addLine} from "../../store/action.ts";
+import {LineType} from "../../types/const.ts";
+import {zArray} from "../../types/lines.ts";
 
 type Props = {
     graphWidth: number,
     graphHeight: number,
-    onChangeStrokes: (strokes: zLabeledStrokes) => void,
 }
 
 export function DrawingPlane(props: Props): JSX.Element {
@@ -16,9 +18,12 @@ export function DrawingPlane(props: Props): JSX.Element {
     const [cursorX, setCursorX] = useState<number | null>(null);
     const [cursorY, setCursorY] = useState<number | null>(null);
     const [mouseDown, setMouseDown] = useState<boolean>(false)
-    const [mouseStrokes, setMouseStrokes]  = useState<zLabeledStrokes>([]);
-    const [strokeNumber, setStrokeNumber] = useState<number>(0);
     const [currentStroke, setCurrentStroke] = useState<zArray>([]);
+
+    const currentId = useAppSelector(state => state.currentId)
+    const currentColor = useAppSelector(state => state.color);
+    const lines = useAppSelector(state => state.lines);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (x && (boxX < x && x < boxX + width) && y && (boxY < y && y < boxY + height)) {
@@ -36,7 +41,7 @@ export function DrawingPlane(props: Props): JSX.Element {
             setCursorY(null);
             setCursorX(null);
         }
-    }, [x, y, height, width, boxX, boxY, mouseDown, strokeNumber, props.graphHeight, props.graphWidth]);
+    }, [x, y, height, width, boxX, boxY, mouseDown, props.graphHeight, props.graphWidth]);
 
     function handleMouseDown() {
         setMouseDown(true);
@@ -44,11 +49,16 @@ export function DrawingPlane(props: Props): JSX.Element {
 
     function handleMouseUp() {
         setMouseDown(false);
-        setMouseStrokes(prev =>
-            currentStroke.length > 0 ? [...prev, [strokeNumber, currentStroke]] : prev)
-        setStrokeNumber(prev => prev+1);
+        if (currentStroke.length > 0)
+        {
+            dispatch(addLine({
+                id: currentId,
+                color: currentColor,
+                type: LineType.Sharp,
+                values: currentStroke,
+            }));
+        }
         setCurrentStroke([]);
-        props.onChangeStrokes(mouseStrokes);
     }
 
     return (
@@ -78,14 +88,15 @@ export function DrawingPlane(props: Props): JSX.Element {
                 backgroundColor: 'var(--accent-color)',
             }}/>
             <svg style={{height: '100%', width: '100%'}}>
-                {mouseStrokes.concat([strokeNumber, currentStroke]).map( ms => ms[1] && ms[1].length > 0 && (
+                {lines.map( line => (
                     <DrawingLine
-                        key={ms[0]}
-                        line={ms[1]}
+                        key={line.id}
+                        line={line.values}
                         height={height}
                         width={width}
                         graphHeight={props.graphHeight}
                         graphWidth={props.graphWidth}
+                        color={line.color}
                     />
                 ))}
             </svg>
