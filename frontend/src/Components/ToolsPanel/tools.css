@@ -27,7 +27,7 @@
 .color-tool {
     display: block;
     width: 80%;
-    height: 80%;
+    aspect-ratio: 1/1;
     background-color: var(--bg-color);
     padding: 0;
     border-radius: var(--border-radius);
@@ -45,9 +45,23 @@
     align-items: center;
 }
 
+@supports not (aspect-ratio: 1 / 1) {
+    .tool-button::before {
+        float: left;
+        padding-top: 100%;
+        content: "";
+        overflow: hidden;
+    }
+
+    .tool-button::after {
+        display: block;
+        content: "";
+        clear: both;
+    }
+}
+
 .tool-icon {
     width: 90%;
-    aspect-ratio: 1/1;
     height: inherit;
 }
 

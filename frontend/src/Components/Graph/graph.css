@@ -4,6 +4,7 @@
 }
 
 .graph-box {
+    touch-action: none;
     border: 5px solid var(--accent-color);
     border-radius: var(--border-radius);
     min-width: 400px;
@@ -12,6 +13,20 @@
     margin: 10px;
     aspect-ratio: 1/1;
     position: relative;
+}
+
+@supports not (aspect-ratio: 1 / 1) {
+    .graph-box::before {
+        float: left;
+        padding-top: 100%;
+        content: "";
+    }
+
+    .graph-box::after {
+        display: block;
+        content: "";
+        clear: both;
+    }
 }
 
 .graph-window{
