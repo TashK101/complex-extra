@@ -31,13 +31,16 @@ const suggestedColors: string[] = [
 export function ColorPicker({value, onChange}: Props): React.JSX.Element {
     const [hexValue, setHexValue] = useState<string>(value);
     const [showMenu, setShowMenu] = useState(false);
+    const [currentValue, setCurrentValue] = useState<string>(value);
 
 
     function handleHexValueChange(hex: string) {
-        setHexValue(hex);
+        setCurrentValue(hex);
         if (!hexToRgb(hex)) {
             return;
         }
+        hex = hex.length === 7 ? hex : `#${hex}`;
+        setHexValue(hex);
         onChange(hex);
     }
 
@@ -69,7 +72,7 @@ export function ColorPicker({value, onChange}: Props): React.JSX.Element {
                             onClick={() => handleHexValueChange(c)}
                         />))}
                     </div>
-                    <input max={7} className={'color-picker-hex'} value={hexValue} onChange={handleValueChange}/>
+                    <input maxLength={7} className={'color-picker-hex'} value={currentValue} onChange={handleValueChange}/>
                 </div>
             )}
         </div>);
