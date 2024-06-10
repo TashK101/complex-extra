@@ -1,5 +1,3 @@
-//import {LineType} from "./const.ts";
-
 import {LineType} from "./const.ts";
 
 export type zArray = [number, number][]

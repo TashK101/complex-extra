@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 
 export const useMousePosition = (includeTouch: boolean) => {
     const [mousePosition, setMousePosition] =
-        useState<{ x: number | null, y: number | null }>({x: null, y: null});
+        useState<{ mouseX: number | null, mouseY: number | null }>({mouseX: null, mouseY: null});
     useEffect(() => {
         const updateMousePosition = (ev: MouseEvent | TouchEvent) => {
             let x, y;
@@ -10,15 +10,15 @@ export const useMousePosition = (includeTouch: boolean) => {
                 if (!ev.touches || ev.touches.length !== 1) {
                     [x, y] = [null, null];
                 } else {
-                    const touch = ev.touches[0] ?? {clientX: null, clientY: null};
+                    const touch = ev.touches[0] ?? {pageX: null, pageY: null};
                     [x, y] = [touch.clientX, touch.clientY];
                 }
             } else if (ev instanceof MouseEvent) {
-                [x, y] = [ev.clientX, ev.clientY];
+                [x, y] = [ev.pageX, ev.pageY];
             } else {
                 [x, y] = [null, null]
             }
-            setMousePosition({x, y});
+            setMousePosition({mouseX: x, mouseY: y});
         };
         window.addEventListener('mousemove', updateMousePosition);
         if (includeTouch) {

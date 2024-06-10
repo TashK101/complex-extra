@@ -6,9 +6,19 @@ export const changeTool = createAction<Tool>('CHANGE_TOOL');
 
 export const changeColor = createAction<string>('CHANGE_COLOR');
 
-export const resizeDrawing = createAction<number>('RESIZE_DRAWING');
+export const resizeDrawing = createAction<{
+    top: number,
+    left: number,
+    right: number,
+    bottom: number
+}>('RESIZE_DRAWING');
 
-export const resizeResult = createAction<number>('RESIZE_RESULT');
+export const resizeResult = createAction<{
+    top: number,
+    left: number,
+    right: number,
+    bottom: number
+}>('RESIZE_RESULT');
 
 export const eraseAll = createAction('ERASE_ALL');
 
@@ -18,4 +28,4 @@ export const addLine = createAction('ADD_LINE');
 
 export const addResult = createAction<Line[]>('ADD_RESULT');
 
-export const changeGhost = createAction<Line|null>('CHANGE_GHOST');
+export const changeGhost = createAction<Line | null>('CHANGE_GHOST');

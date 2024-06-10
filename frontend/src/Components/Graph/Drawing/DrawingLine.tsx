@@ -1,20 +1,15 @@
 type DrawingLineProps = {
-    height: number,
-    width: number,
-    graphHeight: number,
-    graphWidth: number,
     line: [number, number][],
     color: string,
-    transparent?: boolean
+    transparent?: boolean,
+    getPixelCoords: (p:[number, number]) => [number, number],
 }
 
-export const DrawingLine = ({height, width, graphHeight, graphWidth, line, color, transparent}: DrawingLineProps) => {
-    const pixelsInCellW = width / graphWidth;
-    const pixelsInCellH = height / graphHeight;
+export const DrawingLine = ({line, color, transparent, getPixelCoords}: DrawingLineProps) => {
     const pathData = "M " + line.map(p => {
-        return `${(p[0] + graphWidth / 2) * pixelsInCellW} ${(-p[1] + graphHeight / 2) * pixelsInCellH}`
-    })
-        .join(" L ");
+        const [x, y] = getPixelCoords(p);
+        return`${x} ${y}`
+    }).join(" L ");
     return (
         <path
             className="path"

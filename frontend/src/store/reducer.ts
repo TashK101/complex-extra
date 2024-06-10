@@ -16,8 +16,8 @@ type State = {
     tool: Tool,
     color: string,
     function: string,
-    sizeDrawing: number,
-    sizeResult: number,
+    drawingView: {top: number, left: number, right: number, bottom: number},
+    resultView: {top: number, left: number, right: number, bottom: number},
     lines: Line[],
     result: Line[],
     currentId: number,
@@ -28,8 +28,8 @@ const initialState: State = {
     tool: Tool.Pencil,
     color: '#111166',
     function: 'z',
-    sizeDrawing: 20,
-    sizeResult: 20,
+    drawingView: {top: 10, left: -10, right: 10, bottom: -10},
+    resultView: {top: 10, left: -10, right: 10, bottom: -10},
     lines: [],
     result: [],
     currentId: 0,
@@ -45,10 +45,10 @@ export const reducer = createReducer(initialState, (builder) => {
             state.color = action.payload;
         })
         .addCase(resizeDrawing, (state, action) => {
-            state.sizeDrawing = action.payload;
+            state.drawingView = action.payload;
         })
         .addCase(resizeResult, (state, action) => {
-            state.sizeResult = action.payload;
+            state.resultView = action.payload;
         })
         .addCase(changeFunction, (state, action) => {
             state.function = action.payload;

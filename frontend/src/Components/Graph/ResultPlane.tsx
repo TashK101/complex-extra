@@ -1,10 +1,8 @@
 import {useBoxRect} from "../../hooks/useBoxRect.ts";
 import {useRef} from "react";
-import {DrawingLine} from "./Drawing/DrawingLine.tsx";
 import {Line} from "../../types/lines.ts";
-
-const graphWidth = 20;
-const graphHeight = 20;
+import {DrawLine} from "./Drawing/DrawLine.ts";
+import {useAppSelector} from "../../hooks";
 
 type Props = {
     lines: Line[],
@@ -13,19 +11,17 @@ type Props = {
 export function ResultPlane(props: Props): JSX.Element {
     const boxRef = useRef<HTMLDivElement>(null);
     const {height, width} = useBoxRect(boxRef);
+    const viewRect = useAppSelector(state => state.resultView);
 
     return (
         <div className={'graph-show graph-window'} ref={boxRef}>
             <svg style={{height: '100%', width: '100%'}}>
                 {props.lines.map( line => (
-                    <DrawingLine
+                    <DrawLine
                         key={line.id}
-                        line={line.values}
-                        height={height}
-                        width={width}
-                        graphHeight={graphHeight}
-                        graphWidth={graphWidth}
-                        color={line.color}
+                        line={line}
+                        viewRect={viewRect}
+                        box={{width, height}}
                     />
                 ))}
             </svg>
