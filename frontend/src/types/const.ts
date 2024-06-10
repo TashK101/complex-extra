@@ -12,4 +12,5 @@ export enum LineType {
     Ellipse = 'Ellipse',
     Curve = 'Curve',
     Sharp = 'Sharp',
+    Segment = 'Segment',
 }

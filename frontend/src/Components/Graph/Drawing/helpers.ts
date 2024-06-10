@@ -11,7 +11,6 @@ export function pixelCoordsToAxisCoords(
 
     const pixelsInX = box.width / (viewRect.right - viewRect.left);
     const pixelsInY = box.height / (viewRect.top - viewRect.bottom);
-    console.log({x: x / pixelsInX + viewRect.left, y: -y / pixelsInY + viewRect.top});
     return {
         x: x / pixelsInX + viewRect.left,
         y: -y / pixelsInY + viewRect.top,

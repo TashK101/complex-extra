@@ -1,21 +1,22 @@
+import {Line} from "../../../types/lines.ts";
+
 type DrawingLineProps = {
-    line: [number, number][],
-    color: string,
+    line: Line,
     transparent?: boolean,
     getPixelCoords: (p:[number, number]) => [number, number],
 }
 
-export const DrawingLine = ({line, color, transparent, getPixelCoords}: DrawingLineProps) => {
-    const pathData = "M " + line.map(p => {
+export const DrawingSharpLine = ({line, transparent, getPixelCoords}: DrawingLineProps) => {
+    const pathData = "M " + line.values.map(p => {
         const [x, y] = getPixelCoords(p);
         return`${x} ${y}`
     }).join(" L ");
     return (
         <path
-            className="path"
+            className={`graph-drawing-line graph-drawing-line-${line.id}`}
             d={pathData}
             fill={'transparent'}
-            stroke={color}
+            stroke={line.color}
             strokeWidth={3}
             opacity={transparent ? 0.3 : 1}
         />);

@@ -1,7 +1,9 @@
 import {Line} from "../../../types/lines.ts";
 import {LineType} from "../../../types/const.ts";
-import {DrawingLine} from "./DrawingLine.tsx";
+import {DrawingSharpLine} from "./DrawingSharpLine.tsx";
 import {axisCoordsToPixelCoords} from "./helpers.ts";
+import {DrawingRectangleLine} from "./DrawingRectangleLine.tsx";
+import {DrawingEllipseLine} from "./DrawingEllipseLine.tsx";
 
 type Props = {
     line: Line,
@@ -18,18 +20,25 @@ export function DrawLine({line, box, viewRect, transparent}: Props): React.JSX.E
     }
 
     switch (line.type) {
+        case LineType.Segment:
         case LineType.Sharp:
-            return DrawingLine({
-                line: line.values,
-                color: line.color,
+            return DrawingSharpLine({
+                line: line,
                 transparent: transparent,
                 getPixelCoords: getPixelCoords,
             });
-        case LineType.Dots:
-        case LineType.Curve:
-        case LineType.Ellipse:
         case LineType.Rectangle:
-            throw new Error();
+            return DrawingRectangleLine({
+                line: line,
+                transparent: transparent,
+                getPixelCoords: getPixelCoords,
+            });
+        case LineType.Ellipse:
+            return DrawingEllipseLine({
+                line: line,
+                transparent: transparent,
+                getPixelCoords: getPixelCoords,
+            });
         default:
             throw new Error();
     }

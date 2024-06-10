@@ -4,11 +4,11 @@ import {
     addLine,
     addResult,
     changeColor,
-    changeFunction, changeGhost,
+    changeFunction, setGhost,
     changeTool,
     eraseAll,
     resizeDrawing,
-    resizeResult
+    resizeResult, eraseLine
 } from "./action.ts";
 import {Line} from "../types/lines.ts";
 
@@ -68,7 +68,10 @@ export const reducer = createReducer(initialState, (builder) => {
         .addCase(addResult, (state, action) => {
             state.result = action.payload;
         })
-        .addCase(changeGhost, (state, action) => {
+        .addCase(setGhost, (state, action) => {
             state.ghost = action.payload;
+        })
+        .addCase(eraseLine, (state, action) => {
+            state.lines = state.lines.filter(l => l.id !== action.payload)
         });
 });

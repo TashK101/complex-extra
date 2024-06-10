@@ -1,10 +1,9 @@
 import {useBoxRect} from "../../hooks/useBoxRect.ts";
 import {useEffect, useRef, useState} from "react";
 import {useAppDispatch, useAppSelector} from "../../hooks";
-import {addLine, changeGhost} from "../../store/action.ts";
-import {LineType} from "../../types/const.ts";
+import {addLine, eraseLine, setGhost} from "../../store/action.ts";
+import {LineType, Tool} from "../../types/const.ts";
 import {useMousePosition} from "../../hooks/useMousePosition.ts";
-import {Line} from "../../types/lines.ts";
 import {DrawLine} from "./Drawing/DrawLine.ts";
 import {pixelCoordsToAxisCoords} from "./Drawing/helpers.ts";
 
@@ -12,6 +11,8 @@ type Props = {
     graphWidth: number,
     graphHeight: number,
 }
+
+const lineRegex = 'graph-drawing-line-(\\d+)';
 
 export function DrawingPlane(props: Props): JSX.Element {
     const boxRef = useRef<HTMLDivElement>(null);
@@ -23,10 +24,82 @@ export function DrawingPlane(props: Props): JSX.Element {
 
     const currentId = useAppSelector(state => state.currentId)
     const currentColor = useAppSelector(state => state.color);
+    const tool = useAppSelector(state => state.tool);
     const lines = useAppSelector(state => state.lines);
     const currentLine = useAppSelector(state => state.ghost);
     const viewRect = useAppSelector(state => state.drawingView);
     const dispatch = useAppDispatch();
+
+    function handleDraw(x: number, y: number) {
+        switch (tool) {
+            case Tool.Eraser:
+                const element = document.elementFromPoint(mouseX ?? 0, mouseY ?? 0);
+                const match = element && element instanceof SVGElement
+                    ? element.classList.toString().match(lineRegex) : null;
+                match && dispatch(eraseLine(parseInt(match[1])));
+                break;
+            case Tool.Rectangle:
+                dispatch(setGhost(currentLine
+                    ? {
+                        id: currentLine.id,
+                        color: currentLine.color,
+                        type: LineType.Rectangle,
+                        values: [currentLine.values[0], [x, y]],
+                    }
+                    : {
+                        id: currentId,
+                        color: currentColor,
+                        type: LineType.Rectangle,
+                        values: [[x, y], [x, y]],
+                    }));
+                break;
+            case Tool.Ellipse:
+                dispatch(setGhost(currentLine
+                    ? {
+                        id: currentLine.id,
+                        color: currentLine.color,
+                        type: LineType.Ellipse,
+                        values: [currentLine.values[0], [x, y]],
+                    }
+                    : {
+                        id: currentId,
+                        color: currentColor,
+                        type: LineType.Ellipse,
+                        values: [[x, y], [x, y]],
+                    }));
+                break;
+            case Tool.Line:
+                dispatch(setGhost(currentLine
+                    ? {
+                        id: currentLine.id,
+                        color: currentLine.color,
+                        type: LineType.Segment,
+                        values: [currentLine.values[0], [x, y]],
+                    }
+                    : {
+                        id: currentId,
+                        color: currentColor,
+                        type: LineType.Segment,
+                        values: [[x, y], [x, y]],
+                    }));
+                break;
+            default:
+                dispatch(setGhost(currentLine
+                    ? {
+                        id: currentLine.id,
+                        color: currentLine.color,
+                        type: LineType.Sharp,
+                        values: [...currentLine.values, [x, y]],
+                    }
+                    : {
+                        id: currentId,
+                        color: currentColor,
+                        type: LineType.Sharp,
+                        values: [[x, y]],
+                    }));
+                break;
+        }
+    }
 
     useEffect(() => {
         if (mouseX && (boxX < mouseX && mouseX < boxX + width) && mouseY && (boxY < mouseY && mouseY < boxY + height)) {
@@ -37,26 +110,9 @@ export function DrawingPlane(props: Props): JSX.Element {
 
             if (isDrawing.current) {
                 const {x, y} = pixelCoordsToAxisCoords(currentX, currentY, {height, width}, viewRect);
-                //[
-                //     (currentX / (width / props.graphWidth)) - (props.graphWidth / 2),
-                //     -((currentY / (height / props.graphHeight)) - (props.graphHeight / 2))
-                // ];
-                const line: Line = (currentLine
-                    ? {
-                        id: currentLine.id,
-                        color: currentLine.color,
-                        type: currentLine.type,
-                        values: [...currentLine.values, [x, y]],
-                    }
-                    : {
-                        id: currentId,
-                        color: currentColor,
-                        type: LineType.Sharp,
-                        values: [[x, y]],
-                    });
-                dispatch(changeGhost(line));
+                handleDraw(x, y);
             } else {
-                dispatch(changeGhost(null));
+                currentLine || dispatch(setGhost(null));
             }
         } else {
             setCursorY(null);
@@ -87,7 +143,10 @@ export function DrawingPlane(props: Props): JSX.Element {
             onMouseLeave={handleMouseUp}
             onTouchStart={handleMouseDown}
             onTouchEnd={handleTouchEnd}
-            onTouchCancel={() => {dispatch(changeGhost(null)); handleTouchEnd()}}
+            onTouchCancel={() => {
+                dispatch(setGhost(null));
+                handleTouchEnd()
+            }}
         >
             <div className={'graph-cursor-x'} style={{
                 position: 'absolute',
@@ -106,7 +165,7 @@ export function DrawingPlane(props: Props): JSX.Element {
                 backgroundColor: 'var(--accent-color)',
             }}/>
             <svg style={{height: '100%', width: '100%'}}>
-                {lines.map( line => (
+                {lines.map(line => (
                     <DrawLine
                         key={line.id}
                         line={line}

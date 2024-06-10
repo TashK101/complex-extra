@@ -22,10 +22,12 @@ export const resizeResult = createAction<{
 
 export const eraseAll = createAction('ERASE_ALL');
 
+export const eraseLine = createAction<number>("ERASE_LINE");
+
 export const changeFunction = createAction<string>('CHANGE_FUNCTION');
 
 export const addLine = createAction('ADD_LINE');
 
 export const addResult = createAction<Line[]>('ADD_RESULT');
 
-export const changeGhost = createAction<Line | null>('CHANGE_GHOST');
+export const setGhost = createAction<Line | null>('CHANGE_GHOST');
