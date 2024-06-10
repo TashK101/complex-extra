@@ -1,4 +1,4 @@
-import {useBoxRect} from "../../hooks/hooks.ts";
+import {useBoxRect} from "../../hooks/useBoxRect.ts";
 import {useRef} from "react";
 import {DrawingLine} from "./Drawing/DrawingLine.tsx";
 import {Line} from "../../types/lines.ts";

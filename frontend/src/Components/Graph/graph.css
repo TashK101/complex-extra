@@ -3,13 +3,26 @@
     flex-wrap: wrap;
 }
 
+@media (max-width: 500px) {
+    .graph-box {
+        min-width: 200px;
+        width: calc((100vw - var(--control-width))*0.9);
+    }
+}
+
+@media (min-width: 500px) {
+    .graph-box {
+        min-width: 400px;
+        width: 40vw;
+    }
+}
+
 .graph-box {
-    touch-action: none;
+    touch-action: pinch-zoom;
+    cursor: crosshair;
     border: 5px solid var(--accent-color);
     border-radius: var(--border-radius);
-    min-width: 400px;
-    width: 40vw;
-    max-width: 80vw;
+    max-width: calc(min(80vw, 80vh));
     margin: 10px;
     aspect-ratio: 1/1;
     position: relative;

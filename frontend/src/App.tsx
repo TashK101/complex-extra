@@ -14,8 +14,7 @@ async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStroke
             method: 'POST',
             body: JSON.stringify({z})
         });
-        console.log(response)
-        return response.json()
+        return response.status === 200 ? response.json() : null;
     } catch (e) {
         throw e;
     }

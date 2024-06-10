@@ -4,7 +4,7 @@ import {
     addLine,
     addResult,
     changeColor,
-    changeFunction,
+    changeFunction, changeGhost,
     changeTool,
     eraseAll,
     resizeDrawing,
@@ -12,15 +12,28 @@ import {
 } from "./action.ts";
 import {Line} from "../types/lines.ts";
 
-const initialState = {
+type State = {
+    tool: Tool,
+    color: string,
+    function: string,
+    sizeDrawing: number,
+    sizeResult: number,
+    lines: Line[],
+    result: Line[],
+    currentId: number,
+    ghost: Line|null,
+}
+
+const initialState: State = {
     tool: Tool.Pencil,
     color: '#111166',
     function: 'z',
     sizeDrawing: 20,
     sizeResult: 20,
-    lines: new Array<Line>(),
-    result: new Array<Line>(),
+    lines: [],
+    result: [],
     currentId: 0,
+    ghost: null,
 };
 
 export const reducer = createReducer(initialState, (builder) => {
@@ -45,11 +58,17 @@ export const reducer = createReducer(initialState, (builder) => {
             state.result = [];
             state.currentId = 0;
         })
-        .addCase(addLine, (state, action) => {
-            state.lines.push(action.payload);
-            state.currentId++;
+        .addCase(addLine, (state) => {
+            if (state.ghost) {
+                state.lines.push(state.ghost);
+                state.currentId++;
+                state.ghost = null;
+            }
         })
         .addCase(addResult, (state, action) => {
             state.result = action.payload;
+        })
+        .addCase(changeGhost, (state, action) => {
+            state.ghost = action.payload;
         });
 });

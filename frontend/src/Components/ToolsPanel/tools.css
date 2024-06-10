@@ -22,15 +22,7 @@
     justify-content: space-evenly;
     align-items: center;
     padding: 10px 0;
-}
-
-.color-tool {
-    display: block;
-    width: 80%;
-    aspect-ratio: 1/1;
-    background-color: var(--bg-color);
-    padding: 0;
-    border-radius: var(--border-radius);
+    z-index: 10;
 }
 
 .tool-button {
@@ -79,4 +71,53 @@
 
 .tool-button-active {
     background-color: var(--accent-color);
+}
+
+.color-picker-icon {
+    width: 70%;
+    height: 70%;
+    border-radius: var(--border-radius);
+    border: 3px solid var(--bg-color);
+    box-sizing: border-box;
+    position: relative;
+}
+
+.color-picker-menu {
+    position: absolute;
+    left: calc(100% + 20px);
+    bottom: 0;
+    z-index: 15;
+    display: flex;
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius);
+    border: var(--accent-color) 3px solid;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
+    max-width: 150px;
+}
+
+.color-options-container {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.color-option {
+    height: 20px;
+    width: 20px;
+    border: 1px solid black;
+    border-radius: var(--border-radius);
+    margin: 3px;
+}
+
+.color-picker-hex {
+    display: block;
+    margin: 10px;
+    padding: 5px;
+    border: 2px solid var(--accent-color);
+    border-radius: var(--border-radius);
+    width: fit-content;
+    max-width: 80%;
+    align-content: center
 }

@@ -5,9 +5,10 @@ type DrawingLineProps = {
     graphWidth: number,
     line: [number, number][],
     color: string,
+    transparent?: boolean
 }
 
-export const DrawingLine = ({height, width, graphHeight, graphWidth, line, color}: DrawingLineProps) => {
+export const DrawingLine = ({height, width, graphHeight, graphWidth, line, color, transparent}: DrawingLineProps) => {
     const pixelsInCellW = width / graphWidth;
     const pixelsInCellH = height / graphHeight;
     const pathData = "M " + line.map(p => {
@@ -21,5 +22,6 @@ export const DrawingLine = ({height, width, graphHeight, graphWidth, line, color
             fill={'transparent'}
             stroke={color}
             strokeWidth={3}
+            opacity={transparent ? 0.3 : 1}
         />);
 }

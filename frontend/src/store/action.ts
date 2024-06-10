@@ -14,6 +14,8 @@ export const eraseAll = createAction('ERASE_ALL');
 
 export const changeFunction = createAction<string>('CHANGE_FUNCTION');
 
-export const addLine = createAction<Line>('ADD_LINE');
+export const addLine = createAction('ADD_LINE');
 
 export const addResult = createAction<Line[]>('ADD_RESULT');
+
+export const changeGhost = createAction<Line|null>('CHANGE_GHOST');
