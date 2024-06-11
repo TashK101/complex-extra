@@ -28,6 +28,8 @@ function App() {
     const lines = useAppSelector(state => state.lines);
     const result = useAppSelector(state => state.result);
     const f = useAppSelector(state => state.function);
+    const drawRect = useAppSelector(state => state.drawingView);
+    const resultRect = useAppSelector(state => state.resultView);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -52,13 +54,10 @@ function App() {
         <div className={"control-container"}>
             <Panel/>
             <div className={"graphs-container"}>
-                <Graph>
-                    <DrawingPlane
-                        graphHeight={20}
-                        graphWidth={20}
-                    />
+                <Graph viewRect={drawRect}>
+                    <DrawingPlane/>
                 </Graph>
-                <Graph>
+                <Graph viewRect={resultRect}>
                     <ResultPlane lines={result}/>
                 </Graph>
             </div>

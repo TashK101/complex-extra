@@ -1,5 +1,5 @@
 import {useBoxRect} from "../../hooks/useBoxRect.ts";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {useAppDispatch, useAppSelector} from "../../hooks";
 import {addLine, eraseLine, setGhost} from "../../store/action.ts";
 import {LineType, Tool} from "../../types/const.ts";
@@ -7,14 +7,9 @@ import {useMousePosition} from "../../hooks/useMousePosition.ts";
 import {DrawLine} from "./Drawing/DrawLine.ts";
 import {pixelCoordsToAxisCoords} from "./Drawing/helpers.ts";
 
-type Props = {
-    graphWidth: number,
-    graphHeight: number,
-}
-
 const lineRegex = 'graph-drawing-line-(\\d+)';
 
-export function DrawingPlane(props: Props): JSX.Element {
+export function DrawingPlane(): JSX.Element {
     const boxRef = useRef<HTMLDivElement>(null);
     const {mouseX, mouseY} = useMousePosition(true);
     const {height, width, boxX, boxY} = useBoxRect(boxRef);
@@ -29,6 +24,17 @@ export function DrawingPlane(props: Props): JSX.Element {
     const currentLine = useAppSelector(state => state.ghost);
     const viewRect = useAppSelector(state => state.drawingView);
     const dispatch = useAppDispatch();
+
+    const svgLines = useMemo(() => {
+        return lines.map(line => (
+            <DrawLine
+                key={line.id}
+                line={line}
+                viewRect={viewRect}
+                box={{width, height}}
+            />
+        ))
+    }, [lines, viewRect, width, height]);
 
     function handleDraw(x: number, y: number) {
         switch (tool) {
@@ -118,7 +124,7 @@ export function DrawingPlane(props: Props): JSX.Element {
             setCursorY(null);
             setCursorX(null);
         }
-    }, [mouseX, mouseY, height, width, boxX, boxY, isDrawing, props.graphHeight, props.graphWidth]);
+    }, [mouseX, mouseY, height, width, boxX, boxY, isDrawing, viewRect]);
 
     function handleMouseDown() {
         isDrawing.current = true;
@@ -165,14 +171,7 @@ export function DrawingPlane(props: Props): JSX.Element {
                 backgroundColor: 'var(--accent-color)',
             }}/>
             <svg style={{height: '100%', width: '100%'}}>
-                {lines.map(line => (
-                    <DrawLine
-                        key={line.id}
-                        line={line}
-                        viewRect={viewRect}
-                        box={{width, height}}
-                    />
-                ))}
+                {svgLines}
                 {currentLine && (<DrawLine
                     line={currentLine}
                     viewRect={viewRect}

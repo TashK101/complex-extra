@@ -19,7 +19,6 @@
 
 .graph-box {
     touch-action: pinch-zoom;
-    cursor: crosshair;
     border: 5px solid var(--accent-color);
     border-radius: var(--border-radius);
     max-width: calc(min(80vw, 80vh));
@@ -42,6 +41,10 @@
     }
 }
 
+.graph-draw {
+    cursor: crosshair;
+}
+
 .graph-window{
     position: absolute;
     top: 0;
@@ -51,7 +54,6 @@
 }
 
 .graph-grid {
-    background-size: 5% 5%;
     background-image:
             linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
             linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
@@ -59,9 +61,6 @@
 }
 
 .graph-axis {
-    background-image:
-            linear-gradient(to right, transparent calc(50% - 1px), var(--axis-color) calc(50%), transparent calc(50% + 1px)),
-            linear-gradient(to bottom, transparent calc(50% - 1px), var(--axis-color) calc(50%), transparent calc(50% + 1px));
     z-index: -1;
 }
 
