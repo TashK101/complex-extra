@@ -15,7 +15,7 @@ export const DrawingSharpLine = ({line, transparent, getPixelCoords}: DrawingLin
         <path
             className={`graph-drawing-line graph-drawing-line-${line.id}`}
             d={pathData}
-            fill={'transparent'}
+            fill={'none'}
             stroke={line.color}
             strokeWidth={3}
             opacity={transparent ? 0.3 : 1}
