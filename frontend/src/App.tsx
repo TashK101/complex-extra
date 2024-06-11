@@ -7,6 +7,8 @@ import {useEffect, useState} from "react";
 import {zLabeledStrokes} from "./types/lines.ts";
 import {useAppDispatch, useAppSelector} from "./hooks";
 import {addResult, changeFunction} from "./store/action.ts";
+import {scatterLine} from "./Components/Graph/Drawing/helpers.ts";
+import {LineType} from "./types/const.ts";
 
 async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | null> {
     try {
@@ -29,11 +31,13 @@ function App() {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        lines.length > 0 && getStrokes(lines.map((line) => [line.id, line.values]), f).then(res => {
+        lines.length > 0 && getStrokes(lines
+                .map((line) => scatterLine(line))
+                .map((line) => [line.id, line.values]), f).then(res => {
             if (res) {
                 dispatch(addResult(res.map(([id, value]) => {
                     const proto = lines.filter(l => l.id === id)[0];
-                    return { id: id, values: value, color: proto.color, type: proto.type };
+                    return { id: id, values: value, color: proto.color, type: LineType.Sharp };
                 })));
             }
         })

@@ -51,7 +51,7 @@ export const reducer = createReducer(initialState, (builder) => {
             state.resultView = action.payload;
         })
         .addCase(changeFunction, (state, action) => {
-            state.function = action.payload;
+            state.function = action.payload.toLowerCase();
         })
         .addCase(eraseAll, (state) => {
             state.lines = [];
