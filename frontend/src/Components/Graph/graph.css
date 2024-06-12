@@ -64,6 +64,46 @@
     z-index: -1;
 }
 
+.graph-labels {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.graph-labels-x {
+    flex-direction: row;
+    width: 100%;
+}
+
+.graph-labels-y {
+    flex-direction: column-reverse;
+    height: 100%;
+}
+
+.graph-label-placeholder {
+    list-style: none;
+    z-index: -1;
+    position: relative;
+}
+
+.graph-label {
+    font-size: 0.7em;
+    position: absolute;
+    user-select: none;
+    padding: 0;
+    margin: 0;
+}
+
+.graph-label-x {
+    transform: translateX(-50%);
+}
+
+.graph-label-y {
+    transform: translateY(-50%);
+}
+
 .function-form {
     background-color: var(--bg-color);
     border-radius: var(--border-radius);
