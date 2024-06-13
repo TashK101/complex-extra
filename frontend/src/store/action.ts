@@ -1,24 +1,14 @@
 import {createAction} from '@reduxjs/toolkit';
-import {Tool} from "../types/const.ts";
+import {Tool, ViewRectangle} from "../types/const.ts";
 import {Line} from "../types/lines.ts";
 
 export const changeTool = createAction<Tool>('CHANGE_TOOL');
 
 export const changeColor = createAction<string>('CHANGE_COLOR');
 
-export const resizeDrawing = createAction<{
-    top: number,
-    left: number,
-    right: number,
-    bottom: number
-}>('RESIZE_DRAWING');
+export const resizeDrawing = createAction<ViewRectangle>('RESIZE_DRAWING');
 
-export const resizeResult = createAction<{
-    top: number,
-    left: number,
-    right: number,
-    bottom: number
-}>('RESIZE_RESULT');
+export const resizeResult = createAction<ViewRectangle>('RESIZE_RESULT');
 
 export const eraseAll = createAction('ERASE_ALL');
 

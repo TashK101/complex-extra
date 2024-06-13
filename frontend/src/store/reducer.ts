@@ -1,5 +1,5 @@
 import {createReducer} from '@reduxjs/toolkit';
-import {Tool} from "../types/const.ts";
+import {Tool, ViewRectangle} from "../types/const.ts";
 import {
     addLine,
     addResult,
@@ -16,8 +16,8 @@ type State = {
     tool: Tool,
     color: string,
     function: string,
-    drawingView: {top: number, left: number, right: number, bottom: number},
-    resultView: {top: number, left: number, right: number, bottom: number},
+    drawingView: ViewRectangle,
+    resultView: ViewRectangle,
     lines: Line[],
     result: Line[],
     currentId: number,
@@ -52,6 +52,7 @@ export const reducer = createReducer(initialState, (builder) => {
         })
         .addCase(changeFunction, (state, action) => {
             state.function = action.payload.toLowerCase();
+            state.result = [];
         })
         .addCase(eraseAll, (state) => {
             state.lines = [];
@@ -66,7 +67,8 @@ export const reducer = createReducer(initialState, (builder) => {
             }
         })
         .addCase(addResult, (state, action) => {
-            state.result = action.payload;
+            state.result = state.result.filter(l => !(action.payload.map(p => p.id).includes(l.id)));
+            state.result.push(...action.payload);
         })
         .addCase(setGhost, (state, action) => {
             state.ghost = action.payload;

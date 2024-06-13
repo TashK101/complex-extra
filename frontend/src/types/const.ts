@@ -14,3 +14,10 @@ export enum LineType {
     Sharp = 'Sharp',
     Segment = 'Segment',
 }
+
+export type ViewRectangle = {
+    top: number,
+    bottom: number,
+    left: number,
+    right: number,
+}

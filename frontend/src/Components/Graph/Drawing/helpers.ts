@@ -1,11 +1,11 @@
 import {Line, zArray} from "../../../types/lines.ts";
-import {LineType} from "../../../types/const.ts";
+import {LineType, ViewRectangle} from "../../../types/const.ts";
 
 export function pixelCoordsToAxisCoords(
     x: number,
     y: number,
     box: {width: number, height: number},
-    viewRect: {top: number, left: number, right: number, bottom: number},
+    viewRect: ViewRectangle,
 ): { x: number, y: number } {
 
     // ----t----
@@ -52,10 +52,12 @@ export function scatterLine(line: Line): Line {
 
 function segmentToSharp(line: Line): Line {
     const points: zArray = [];
-    const [x1, y1, x2, y2] = [...line.values[0], ...line.values[1]];
+    let [x1, y1, x2, y2] = [...line.values[0], ...line.values[1]];
+    [x1, x2] = [Math.min(x1, x2), Math.max(x1, x2)];
+    [y1, y2] = [Math.min(y1, y2), Math.max(y1, y2)];
     const length = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
     for (let i = 0; i < length; i+= 0.01) {
-        points.push([Math.min(x1, x2) + i*Math.sqrt(length**2 - (y2-y1)**2), Math.min(y1, y2) + i*Math.sqrt(length**2 - (x2-x1)**2)]);
+        points.push([x1 + (i/length) * (x2-x1), y1 + (i/length) * (y2-y1)]);
     }
     return {
         id: line.id,
@@ -82,6 +84,7 @@ function rectangleToPolygon(line: Line): Line {
     for (let i = y2; i > y1; i-=0.01) {
         points.push([x1, i]);
     }
+    points.push([x1, y1]);
     return {
         id: line.id,
         color: line.color,

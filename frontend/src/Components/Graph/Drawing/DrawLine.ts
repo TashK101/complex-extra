@@ -1,5 +1,5 @@
 import {Line} from "../../../types/lines.ts";
-import {LineType} from "../../../types/const.ts";
+import {LineType, ViewRectangle} from "../../../types/const.ts";
 import {DrawingSharpLine} from "./DrawingSharpLine.tsx";
 import {axisCoordsToPixelCoords} from "./helpers.ts";
 import {DrawingRectangleLine} from "./DrawingRectangleLine.tsx";
@@ -8,7 +8,7 @@ import {DrawingEllipseLine} from "./DrawingEllipseLine.tsx";
 type Props = {
     line: Line,
     box: {width: number, height: number},
-    viewRect: {top: number, left: number, bottom: number, right: number},
+    viewRect: ViewRectangle,
     transparent?: boolean
 }
 

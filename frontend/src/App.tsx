@@ -33,12 +33,13 @@ function App() {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        lines.length > 0 && getStrokes(lines
+        const newLines = lines.filter(line => !(result.map(r => r.id).includes(line.id)));
+        newLines.length > 0 && getStrokes(newLines
                 .map((line) => scatterLine(line))
                 .map((line) => [line.id, line.values]), f).then(res => {
             if (res) {
                 dispatch(addResult(res.map(([id, value]) => {
-                    const proto = lines.filter(l => l.id === id)[0];
+                    const proto = newLines.filter(l => l.id === id)[0];
                     return { id: id, values: value, color: proto.color, type: LineType.Sharp };
                 })));
             }
@@ -58,7 +59,7 @@ function App() {
                     <DrawingPlane/>
                 </Graph>
                 <Graph viewRect={resultRect}>
-                    <ResultPlane lines={result}/>
+                    <ResultPlane/>
                 </Graph>
             </div>
 
