@@ -11,7 +11,7 @@ const lineRegex = 'graph-drawing-line-(\\d+)';
 
 export function DrawingPlane(): JSX.Element {
     const boxRef = useRef<HTMLDivElement>(null);
-    const {height, width, boxX, boxY} = useBoxRect(boxRef);
+    const {height, width} = useBoxRect(boxRef);
     const [cursorX, setCursorX] = useState<number | null>(null);
     const [cursorY, setCursorY] = useState<number | null>(null);
     const isDrawing = useRef(false);
@@ -74,19 +74,22 @@ export function DrawingPlane(): JSX.Element {
     }
 
     useEffect(() => {
-        if (pixelX && pixelY && axisX && axisY) {
+        if (pixelX && pixelY) {
             setCursorX(pixelX);
             setCursorY(pixelY);
-            if (isDrawing.current) {
-                handleDraw(axisX, axisY);
-            } else {
-                currentLine && dispatch(setGhost(null));
-            }
         } else {
             setCursorY(null);
             setCursorX(null);
         }
-    }, [pixelX, pixelY, height, width, boxX, boxY, isDrawing, viewRect]);
+    }, [pixelX, pixelY]);
+
+    useEffect(() => {
+        if (axisX !== null && axisY !== null && isDrawing.current) {
+            handleDraw(axisX, axisY);
+        } else {
+            currentLine && dispatch(setGhost(null));
+        }
+    }, [axisX, axisY, isDrawing.current]);
 
     function handleMouseDown() {
         isDrawing.current = true;

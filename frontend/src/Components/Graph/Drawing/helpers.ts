@@ -116,3 +116,35 @@ function ellipseToPolygon(line: Line): Line {
         type: LineType.Sharp,
     }
 }
+
+export function trimNumber(x: number, a: number): number {
+    return parseFloat(x.toFixed(Math.max(0, Math.ceil(-Math.log10(a + Number.EPSILON)))));
+}
+
+export function trimNumberString(x: number, a: number): string {
+    return x.toFixed(Math.max(0, Math.ceil(-Math.log10(a + Number.EPSILON))));
+}
+
+export function getCellSize(size: number): number {
+    let cell = size / 20;
+    let result = 1;
+    if (cell >= 1) {
+        while (cell > 10) {
+            result *= 10;
+            cell /= 10;
+        }
+    } else {
+        while (cell < 1) {
+            result /= 10;
+            cell *= 10;
+        }
+    }
+    cell = Math.round(cell);
+    if (cell >= 5) {
+        return result * 5;
+    } else if (cell >= 2) {
+        return result * 2;
+    } else {
+        return result;
+    }
+}

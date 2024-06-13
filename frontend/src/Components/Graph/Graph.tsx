@@ -1,5 +1,5 @@
 import {PropsWithChildren, useRef} from "react";
-import {axisCoordsToPixelCoords} from "./Drawing/helpers.ts";
+import {axisCoordsToPixelCoords, getCellSize, trimNumberString} from "./Drawing/helpers.ts";
 import {ViewRectangle} from "../../types/const.ts";
 import {useMousePositionOnPlane} from "../../hooks/useMousePositionOnPlane.ts";
 
@@ -7,37 +7,12 @@ type GraphProps = PropsWithChildren<{
     viewRect: ViewRectangle;
 }>
 
-function getCellSize(size: number): number {
-    let cell = size / 20;
-    let result = 1;
-    if (cell >= 1) {
-        while (cell > 10) {
-            result *= 10;
-            cell /= 10;
-        }
-    } else {
-        while (cell < 1) {
-            result /= 10;
-            cell *= 10;
-        }
-    }
-    cell = Math.round(cell);
-    if (cell >= 5) {
-        return result * 5;
-    } else if (cell >= 2) {
-        return result * 2;
-    } else {
-        return result;
-    }
-}
-
 function getLabels(lower: number, higher: number, cellSize: number): string[] {
     const labels: string[] = [];
     const start = lower + (cellSize * 5 - lower % (cellSize * 5));
 
-    const getFixed = (x: number, a: number) => x.toFixed(Math.max(0, Math.ceil(-Math.log10(a - Number.EPSILON))));
     for (let i = start; i < higher; i += cellSize * 5) {
-        labels.push(getFixed(i, cellSize));
+        labels.push(trimNumberString(i, cellSize));
     }
     return labels;
 }

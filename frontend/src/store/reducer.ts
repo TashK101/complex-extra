@@ -74,7 +74,7 @@ export const reducer = createReducer(initialState, (builder) => {
             state.ghost = action.payload;
         })
         .addCase(eraseLine, (state, action) => {
-            state.lines = state.lines.filter(l => l.id !== action.payload)
-            state.result = state.result.filter(l => l.id !== action.payload)
+            state.lines = state.lines.filter(l => l.id !== action.payload);
+            state.result = state.result.filter(l => l.id !== action.payload);
         });
 });
