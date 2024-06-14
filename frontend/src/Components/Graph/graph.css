@@ -125,21 +125,3 @@
 .graph-mouse-coords-label {
     margin: 0 10px;
 }
-
-.function-form {
-    background-color: var(--bg-color);
-    border-radius: var(--border-radius);
-    border: var(--accent-color-light) 5px solid;
-    height: fit-content;
-    padding: 10px;
-    display: flex;
-    position: fixed;
-    top:0;
-    right:0;
-}
-
-.function-button {
-    border-radius: var(--border-radius);
-    background-color: var(--accent-color);
-    color: white;
-}

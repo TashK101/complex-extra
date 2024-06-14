@@ -3,6 +3,8 @@ import locale
 import re
 from enum import Enum
 
+from .parserError import ParserError, ParserErrorType
+
 
 def keyword_comparator(a, b):
     if len(a) > len(b):
@@ -88,7 +90,7 @@ class Parser:
     unary_operators = ['-']
     binary_operators = ['+', '-', '*', '/', '^']
     separators = [',']  # '.' excluded because it only exists within numbers, and we have a regexp for that
-    comparators = ['=']
+    comparators = []  # ['='] not supported
     parenthesis = ['(', ')']
     symbols = {*unary_operators, *binary_operators, *separators, *comparators, *parenthesis}
     value_token_types = [TokenType.VAR, TokenType.NUM, TokenType.CONST]
@@ -100,13 +102,17 @@ class Parser:
     operator_priority = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}
 
     @staticmethod
-    def try_get_expression(f: str) -> tuple[bool, Expression]:
+    def try_get_expression(f: str, accept_error=False) -> tuple[bool, Expression]:
         try:
             tokens = Parser.tokenize(f)
-        except ValueError:
+        except ValueError as e:
+            if accept_error:
+                raise e
             return False, Expression([], ExpressionType.NONE)
         exp, rest = Parser._get_expression(tokens)
         if len(rest) > 0:
+            if accept_error:
+                raise ParserError(ParserErrorType.INVALID_EXPRESSION)
             return False, Expression([], ExpressionType.NONE)
         return True, exp
 
@@ -165,13 +171,12 @@ class Parser:
                         f = f[1:]
                         continue
                     else:  # not matching variable name
-                        raise ValueError('Поддерживается только для одной переменной')
-                raise ValueError(f'Неизвестный символ: {f[0]}')  # it's not a digit, but nothing else matches
+                        raise ParserError(ParserErrorType.TOO_MANY_VARIABLES, f'{var_letter}, {f[0]}')
+                raise ParserError(ParserErrorType.UNKNOWN_TOKEN, f[0])  # it's not a digit, but nothing else matches
             else:  # that leaves digits
                 num = re.search(Parser.number_r, f)[0]
                 if num is None:
-                    raise ValueError(
-                        f'Теоретически эта ошибка невозможна, но практически - ошибка обработки строки: {f}')
+                    raise ParserError(ParserErrorType.UNKNOWN_TOKEN, f)
                 result.append(Token(num, TokenType.NUM))
                 f = f[len(num):]
 

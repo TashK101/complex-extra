@@ -2,18 +2,18 @@ import cmath
 import numpy as np
 from typing import Callable
 
-from .parser import Expression, Token, TokenType, ExpressionType, Parser
+from .parser import Expression, Token, TokenType, ExpressionType, Parser, ParserError, ParserErrorType
 
 
 class Solver:
     constants = Parser.constants
 
     @staticmethod
-    def get_solution_for_array(exp: Expression) -> Callable[[list[complex]], list[complex]]:
-        return np.vectorize(Solver.get_solution(exp))
+    def get_lambda_for_array(exp: Expression) -> Callable[[list[complex]], list[complex]]:
+        return np.vectorize(Solver.get_lambda_function(exp))
 
     @staticmethod
-    def get_solution(exp: Expression) -> Callable[[complex], complex]:
+    def get_lambda_function(exp: Expression) -> Callable[[complex], complex]:
         if exp.type == ExpressionType.VAL:
             return Solver._get_solution_for_val(exp.value)
         if exp.type == ExpressionType.FUNC:
@@ -24,7 +24,7 @@ class Solver:
             return Solver._get_solution_for_par(exp.value)
         if exp.type == ExpressionType.BINARY:
             return Solver._get_solution_for_binary(exp.value)
-        raise ValueError(f'Not supported expression type: {exp.type}')
+        raise ParserError(ParserErrorType.NOT_SUPPORTED, exp.type)
 
     @staticmethod
     def _get_solution_for_val(exp: list[Expression | Token]) -> Callable[[complex], complex]:
@@ -38,7 +38,7 @@ class Solver:
             elif value == 'e':
                 return lambda z: np.e
             else:
-                raise ValueError(f'Not implemented: {value}')
+                raise ParserError(ParserErrorType.NOT_SUPPORTED, value)
         elif e_type == TokenType.NUM:
             return lambda x: float(value)
         else:
@@ -69,24 +69,25 @@ class Solver:
             return lambda z: np.abs(z)
         if f_name == 'phi':
             return lambda z: cmath.phase(z)
-        raise ValueError(f'Unknown func: {f_name}')
+        raise ParserError(ParserErrorType.NOT_SUPPORTED, f_name)
 
     # log
     @staticmethod
     def _get_func2(f_name):
         if f_name == 'log':
             return lambda x, y: np.log(x+0j) / np.log(y+0j)
-        raise ValueError(f'Unknown func: {f_name}')
+        raise ParserError(ParserErrorType.NOT_SUPPORTED, f_name)
 
     @staticmethod
     def _get_solution_for_func(exp: list[Expression | Token]) -> Callable[[complex], complex]:
         if exp[0].type == TokenType.FUNC1:
             solve = Solver._get_func1(exp[0].value)  # func ( exp )
-            return lambda z: solve((Solver.get_solution(exp[2]))(z))
+            return lambda z: solve((Solver.get_lambda_function(exp[2]))(z))
         elif exp[0].type == TokenType.FUNC2:
-            solve1 = Solver.get_solution(exp[2])
-            solve2 = Solver.get_solution(exp[4])  # func ( exp , exp )
+            solve1 = Solver.get_lambda_function(exp[2])
+            solve2 = Solver.get_lambda_function(exp[4])  # func ( exp , exp )
             return lambda z: Solver._get_func2(exp[0].value)(solve1(z), solve2(z))
+        raise ParserError(ParserErrorType.NOT_SUPPORTED, exp[0].value)
 
     @staticmethod
     def _get_solution_for_unary(exp: list[Expression | Token]) -> Callable[[complex], complex]:
@@ -94,22 +95,22 @@ class Solver:
         e_type = exp[0].type
         if e_type == TokenType.UNARY:
             if value == '-':
-                return lambda z: -(Solver.get_solution(exp[1])(z))
-        raise ValueError(f'Not implemented: {value}')
+                return lambda z: -(Solver.get_lambda_function(exp[1])(z))
+        raise ParserError(ParserErrorType.NOT_SUPPORTED, value)
 
     @staticmethod
     def _get_solution_for_par(exp: list[Expression | Token]) -> Callable[[complex], complex]:
         value = exp[0].value
         if exp[0].type == TokenType.PARL and exp[2].type == TokenType.PARR:
-            return lambda z: Solver.get_solution(exp[1])(z)
-        raise ValueError(f'Not implemented: {value}')
+            return lambda z: Solver.get_lambda_function(exp[1])(z)
+        raise ParserError(ParserErrorType.NOT_SUPPORTED, value)
 
     @staticmethod
     def _get_solution_for_binary(exp: list[Expression | Token]) -> Callable[[complex], complex]:
         if exp[1].type == TokenType.BINARY:
             op = exp[1].value
-            solve1 = Solver.get_solution(exp[0])
-            solve2 = Solver.get_solution(exp[2])
+            solve1 = Solver.get_lambda_function(exp[0])
+            solve2 = Solver.get_lambda_function(exp[2])
             if op == '+':
                 return lambda z: solve1(z) + solve2(z)
             if op == '-':
@@ -120,4 +121,4 @@ class Solver:
                 return lambda z: solve1(z) / solve2(z)
             if op == '^':
                 return lambda z: solve1(z) ** solve2(z)
-        raise ValueError(f'Not implemented: {exp[1].value}')
+        raise ParserError(ParserErrorType.NOT_SUPPORTED, exp[1].value)

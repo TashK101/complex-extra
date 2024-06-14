@@ -45,6 +45,7 @@ export function ColorPicker({value, onChange}: Props): React.JSX.Element {
     }
 
     function handleValueChange(evt: React.ChangeEvent<HTMLInputElement>) {
+        evt.stopPropagation();
         handleHexValueChange(evt.target.value);
     }
 
@@ -58,8 +59,8 @@ export function ColorPicker({value, onChange}: Props): React.JSX.Element {
         <div
             className="color-picker-icon"
             style={{backgroundColor: hexValue}}
-            onClick={() => setShowMenu(true)}
-            contentEditable
+            onClick={() => setShowMenu(!showMenu)}
+            tabIndex={0}
             onBlur={handleBlur}>
             {showMenu && (
                 <div className="color-picker-menu">
@@ -72,7 +73,10 @@ export function ColorPicker({value, onChange}: Props): React.JSX.Element {
                             onClick={() => handleHexValueChange(c)}
                         />))}
                     </div>
-                    <input maxLength={7} className={'color-picker-hex'} value={currentValue} onChange={handleValueChange}/>
+                    <input maxLength={7} className={'color-picker-hex'} value={currentValue}
+                           onChange={handleValueChange}
+                           onClick={(evt) => evt.stopPropagation()}
+                    />
                 </div>
             )}
         </div>);

@@ -8,48 +8,94 @@ import {zLabeledStrokes} from "./types/lines.ts";
 import {useAppDispatch, useAppSelector} from "./hooks";
 import {addResult, changeFunction} from "./store/action.ts";
 import {scatterLine} from "./Components/Graph/Drawing/helpers.ts";
-import {LineType} from "./types/const.ts";
+import {ComplexError, ErrorType, LineType} from "./types/const.ts";
+import {FunctionForm} from "./Components/Function/FunctionForm.tsx";
 
-async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | null> {
+const errorRegex = '^(\\d+)\\s(.*)';
+
+function getErrorType(errorCode: string): ErrorType {
+    switch (errorCode) {
+        case '1':
+            return ErrorType.UnknownToken;
+        case '2':
+            return ErrorType.TooManyVariables;
+        case '3':
+            return ErrorType.NotImplemented;
+        case '4':
+            return ErrorType.InvalidExpression;
+        default:
+            return ErrorType.Unknown;
+    }
+}
+
+function resultIsLabeledStrokes(maybeLabeledStrokes: any): maybeLabeledStrokes is zLabeledStrokes {
+    return maybeLabeledStrokes instanceof Array;
+}
+
+async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | ComplexError> {
     try {
         const response = await fetch("/strokes?" + new URLSearchParams({f: f}).toString(), {
             method: 'POST',
             body: JSON.stringify({z})
         });
-        return response.status === 200 ? response.json() : null;
+        if (response.status === 200) {
+            return response.json();
+        }
+        if (response.status === 400) {
+            const responseError = await response.text().then(text => text.match(errorRegex));
+            if (responseError) {
+                return {errorType: getErrorType(responseError[1]), errorText: responseError[2]}
+            }
+        }
+        if (response.status === 500) {
+            const cantConnect = await response.text().then(text => text.startsWith('Proxy error'));
+            if (cantConnect) {
+                return {errorType: ErrorType.CannotConnect}
+            }
+        }
+        return {errorType: ErrorType.Unknown}
     } catch (e) {
-        throw e;
+        return {errorType: ErrorType.Unknown}
     }
 }
 
 function App() {
-    const [input, setInput] = useState('z');
+    const [error, setError] = useState<ComplexError|null>(null);
+    const [warning, setWarning] = useState<ComplexError|null>(null);
+    const [f, setF] = useState<string>('z');
 
     const lines = useAppSelector(state => state.lines);
+    const storedFunction = useAppSelector(state => state.function);
     const result = useAppSelector(state => state.result);
-    const f = useAppSelector(state => state.function);
     const drawRect = useAppSelector(state => state.drawingView);
     const resultRect = useAppSelector(state => state.resultView);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        const newLines = lines.filter(line => !(result.map(r => r.id).includes(line.id)));
-        newLines.length > 0 && getStrokes(newLines
-                .map((line) => scatterLine(line))
-                .map((line) => [line.id, line.values]), f).then(res => {
+        const currentFunction = f.toLowerCase();
+        const newLines = currentFunction === storedFunction
+            ? lines.filter(line => !(result.map(r => r.id).includes(line.id)))
+            : lines;
+        getStrokes(newLines
+            .map((line) => scatterLine(line))
+            .map((line) => [line.id, line.values]), currentFunction).then(res => {
             if (res) {
+                if (!resultIsLabeledStrokes(res)) {
+                    res.errorType === ErrorType.CannotConnect ? setWarning(res) : setError(res);
+                    return;
+                }
+                setError(null);
+                setWarning(null);
+                if (currentFunction !== storedFunction) {
+                    dispatch(changeFunction(currentFunction));
+                }
                 dispatch(addResult(res.map(([id, value]) => {
                     const proto = newLines.filter(l => l.id === id)[0];
-                    return { id: id, values: value, color: proto.color, type: LineType.Sharp };
+                    return {id: id, values: value, color: proto.color, type: LineType.Sharp};
                 })));
             }
         })
     }, [lines, f]);
-
-    function handleInputChange(evt: React.ChangeEvent<HTMLInputElement>) {
-        const {value} = evt.target;
-        setInput(value);
-    }
 
     return (
         <div className={"control-container"}>
@@ -62,24 +108,7 @@ function App() {
                     <ResultPlane/>
                 </Graph>
             </div>
-
-            <form className={'function-form'}>
-                <span>f=</span>
-                <input
-                    name={'function'}
-                    className={'function-string'}
-                    placeholder={'Введите функцию'}
-                    onChange={handleInputChange}
-                    defaultValue={'z'}
-                />
-                <button
-                    className={'function-button'}
-                    onClick={(evt) => {
-                        evt.preventDefault();
-                        dispatch(changeFunction(input))
-                }}
-                >Посчитать</button>
-            </form>
+            <FunctionForm error={error} warning={warning} onChange={(value) => setF(value)}/>
         </div>
     );
 }

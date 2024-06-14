@@ -1,5 +1,6 @@
 from .parser import Parser, Expression, ExpressionType
 from .solver import Solver
+from .parserError import ParserError
 
 
 class Equation:
@@ -18,7 +19,10 @@ class Equation:
     @property
     def expression(self):
         if self._expression is None:
-            _, self._expression = Parser.try_get_expression(self._func_str)
+            try:
+                _, self._expression = Parser.try_get_expression(self._func_str, True)
+            except ParserError as e:
+                raise e
         return self._expression
 
     @property
@@ -27,5 +31,8 @@ class Equation:
             return self._func
         if not self.is_parsed():
             return None
-        self._func = Solver.get_solution_for_array(self.expression)
+        try:
+            self._func = Solver.get_lambda_for_array(self.expression)
+        except ParserError as e:
+            raise e
         return self._func

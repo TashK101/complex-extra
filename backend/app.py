@@ -1,11 +1,7 @@
-import flask
 from flask import Flask, request
-from matplotlib import pyplot as plt
-import numpy as np
-import io
 from solver.z_array import ZArray, ZLabeledArray
 from solver.equation import Equation
-from solver.parser import ExpressionType
+from solver.parser import ExpressionType, ParserError
 
 app = Flask(__name__)
 
@@ -28,12 +24,15 @@ def main():
     if f not in known_equations.keys():
         known_equations[f] = Equation(f)
     eq = known_equations[f]
-    if eq.expression.type == ExpressionType.NONE:
-        return "Bad function string", 400
-    print(f'Calculated expression...')
-    function = eq.function
-    print(f'Got functional function...')
-    response = []
+    try:
+        if eq.expression.type == ExpressionType.NONE:
+            return "Bad function string", 400
+        print(f'Calculated expression...')
+        function = eq.function
+        print(f'Got functional function...')
+        response = []
+    except ParserError as e:
+        return f'{e.type.value} {e.text_value}', 400
     for label, z in z_array.labeled_points:
         x1, y1 = z.get_x(), z.get_y()
         fz = function(x1 + y1*1j)

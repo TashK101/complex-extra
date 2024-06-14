@@ -21,3 +21,17 @@ export type ViewRectangle = {
     left: number,
     right: number,
 }
+
+export type ComplexError = {
+    errorType: ErrorType,
+    errorText?: string,
+}
+
+export enum ErrorType {
+    CannotConnect = 'CannotConnect',
+    UnknownToken = 'UnknownToken',
+    TooManyVariables = 'TooManyVariables',
+    NotImplemented = 'NotImplemented',
+    InvalidExpression = 'InvalidExpression',
+    Unknown = 'Unknown',
+}
