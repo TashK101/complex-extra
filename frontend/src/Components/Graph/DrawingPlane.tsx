@@ -92,6 +92,7 @@ export function DrawingPlane(): JSX.Element {
     }, [axisX, axisY, isDrawing.current]);
 
     function handleMouseDown() {
+        axisX !== null && axisY !== null && handleDraw(axisX, axisY);
         isDrawing.current = true;
     }
 

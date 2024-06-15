@@ -52,9 +52,7 @@ export function scatterLine(line: Line): Line {
 
 function segmentToSharp(line: Line): Line {
     const points: zArray = [];
-    let [x1, y1, x2, y2] = [...line.values[0], ...line.values[1]];
-    [x1, x2] = [Math.min(x1, x2), Math.max(x1, x2)];
-    [y1, y2] = [Math.min(y1, y2), Math.max(y1, y2)];
+    const [x1, y1, x2, y2] = [...line.values[0], ...line.values[1]];
     const length = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
     for (let i = 0; i < length; i+= 0.01) {
         points.push([x1 + (i/length) * (x2-x1), y1 + (i/length) * (y2-y1)]);
