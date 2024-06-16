@@ -12,15 +12,15 @@ export function ResultPlane(): React.JSX.Element {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        if (result.length > 0) {
+        if (result.length > 0 && (result.length > 1 || result[0].values.length > 1)) {
             const bounds = {top: -Infinity, left: Infinity, bottom: Infinity, right: -Infinity};
 
             for (let line of result) {
-            bounds.right = Math.max(...line.values.map(p => p[0]), bounds.right);
-            bounds.left = Math.min(...line.values.map(p => p[0]), bounds.left);
-            bounds.top = Math.max(...line.values.map(p => p[1]), bounds.top);
-            bounds.bottom = Math.min(...line.values.map(p => p[1]), bounds.bottom);
-        }
+                bounds.right = Math.max(...line.values.map(p => p[0]), bounds.right);
+                bounds.left = Math.min(...line.values.map(p => p[0]), bounds.left);
+                bounds.top = Math.max(...line.values.map(p => p[1]), bounds.top);
+                bounds.bottom = Math.min(...line.values.map(p => p[1]), bounds.bottom);
+            }
 
             const offset = Math.max(bounds.top - bounds.bottom, bounds.right - bounds.left) * 0.55;
             const newRect = {
@@ -44,7 +44,7 @@ export function ResultPlane(): React.JSX.Element {
     return (
         <div className={'graph-show graph-window'} ref={boxRef}>
             <svg style={{height: '100%', width: '100%'}}>
-                {result.map( line => (
+                {result.map(line => (
                     <DrawLine
                         key={line.id}
                         line={line}

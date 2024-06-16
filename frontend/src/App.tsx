@@ -6,10 +6,11 @@ import {ResultPlane} from "./Components/Graph/ResultPlane.tsx";
 import {useEffect, useState} from "react";
 import {zLabeledStrokes} from "./types/lines.ts";
 import {useAppDispatch, useAppSelector} from "./hooks";
-import {addResult, changeFunction} from "./store/action.ts";
+import {addResult, changeFunction, resizeDrawing, resizeResult} from "./store/action.ts";
 import {scatterLine} from "./Components/Graph/Drawing/helpers.ts";
 import {ComplexError, ErrorType, LineType} from "./types/const.ts";
 import {FunctionForm} from "./Components/Function/FunctionForm.tsx";
+import {GraphSettings} from "./Components/Graph/GraphSettings.tsx";
 
 const errorRegex = '^(\\d+)\\s(.*)';
 
@@ -60,8 +61,8 @@ async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStroke
 }
 
 function App() {
-    const [error, setError] = useState<ComplexError|null>(null);
-    const [warning, setWarning] = useState<ComplexError|null>(null);
+    const [error, setError] = useState<ComplexError | null>(null);
+    const [warning, setWarning] = useState<ComplexError | null>(null);
     const [f, setF] = useState<string>('z');
 
     const lines = useAppSelector(state => state.lines);
@@ -77,7 +78,7 @@ function App() {
             ? lines.filter(line => !(result.map(r => r.id).includes(line.id)))
             : lines;
         getStrokes(newLines
-            .map((line) => scatterLine(line))
+            .map((line) => scatterLine(line, 0.01))
             .map((line) => [line.id, line.values]), currentFunction).then(res => {
             if (res) {
                 if (!resultIsLabeledStrokes(res)) {
@@ -91,7 +92,12 @@ function App() {
                 }
                 dispatch(addResult(res.map(([id, value]) => {
                     const proto = newLines.filter(l => l.id === id)[0];
-                    return {id: id, values: value, color: proto.color, type: LineType.Sharp};
+                    return {
+                        id: id,
+                        values: value,
+                        color: proto.color,
+                        type: proto.type === LineType.Dot ? LineType.Dot : LineType.Sharp
+                    };
                 })));
             }
         })
@@ -101,14 +107,21 @@ function App() {
         <div className={"control-container"}>
             <Panel/>
             <div className={"graphs-container"}>
-                <Graph viewRect={drawRect}>
-                    <DrawingPlane/>
-                </Graph>
-                <Graph viewRect={resultRect}>
-                    <ResultPlane/>
-                </Graph>
+                <div className={'graph-with-settings'}>
+                    <GraphSettings viewRect={drawRect} changeViewRect={(rect) => dispatch(resizeDrawing(rect))}/>
+                    <Graph viewRect={drawRect}>
+                        <DrawingPlane/>
+                    </Graph>
+                </div>
+                <div className={'graph-with-settings'}>
+                    <GraphSettings viewRect={resultRect} changeViewRect={(rect) => dispatch(resizeResult(rect))}>
+                        <FunctionForm error={error} warning={warning} onChange={(value) => setF(value)}/>
+                    </GraphSettings>
+                    <Graph viewRect={resultRect}>
+                        <ResultPlane/>
+                    </Graph>
+                </div>
             </div>
-            <FunctionForm error={error} warning={warning} onChange={(value) => setF(value)}/>
         </div>
     );
 }

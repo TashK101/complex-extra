@@ -3,11 +3,14 @@
     border-radius: var(--border-radius);
     border: var(--accent-color-light) 5px solid;
     height: fit-content;
-    padding: 10px;
+    width: 50%;
+    min-width: fit-content;
+    box-sizing: border-box;
+    padding: 0 10px;
     display: flex;
-    position: fixed;
-    top:0;
-    right:0;
+    align-items: baseline;
+    justify-content: center;
+    flex-grow: 1;
 }
 
 .function-form-error {
@@ -20,6 +23,59 @@
 
 .function-button {
     border-radius: var(--border-radius);
-    background-color: var(--accent-color);
+    background-color: var(--accent-color-light);
     color: white;
+    border: var(--accent-color) 3px solid;
+}
+
+.function-button:hover {
+    background-color: var(--accent-color);
+}
+
+.function-string, .settings-input {
+    display: block;
+    border: 3px solid var(--accent-color-light);
+    margin: 5px;
+    border-radius: var(--border-radius);
+}
+
+.function-string {
+    width: 10em;
+}
+
+.graph-with-settings {
+    display: flex;
+    flex-direction: column;
+    width: min-content;
+}
+
+.graph-settings-form {
+    display: flex;
+    border: 5px solid var(--accent-color-light);
+    border-radius: var(--border-radius);
+    padding: 0 10px;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.settings-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap-reverse;
+}
+
+.settings-input {
+    width: 2em;
+}
+
+.settings-input-error {
+    border-color: var(--error-color);
+}
+
+.settings-label {
+    display: flex;
+    margin-right: 3px;
+    margin-left: 5px;
+    align-items: baseline;
 }

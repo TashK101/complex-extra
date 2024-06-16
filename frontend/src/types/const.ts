@@ -1,4 +1,5 @@
 export enum Tool {
+    Dot = 'Dot',
     Pencil = 'Pencil',
     Eraser = 'Eraser',
     Ellipse = 'Ellipse',
@@ -7,7 +8,7 @@ export enum Tool {
 }
 
 export enum LineType {
-    Dots = 'Dots',
+    Dot = 'Dot',
     Rectangle = 'Rectangle',
     Ellipse = 'Ellipse',
     Curve = 'Curve',
@@ -34,4 +35,8 @@ export enum ErrorType {
     NotImplemented = 'NotImplemented',
     InvalidExpression = 'InvalidExpression',
     Unknown = 'Unknown',
+}
+
+export enum FunctionStatus {
+
 }

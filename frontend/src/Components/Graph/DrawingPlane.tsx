@@ -69,6 +69,10 @@ export function DrawingPlane(): JSX.Element {
                 tempLine.type = LineType.Segment;
                 tempLine.values = currentLine ? [currentLine.values[0], [x, y]] : [[x, y], [x, y]];
                 break;
+            case Tool.Dot:
+                tempLine.type = LineType.Dot;
+                tempLine.values = [[x, y]];
+                break;
         }
         dispatch(setGhost(tempLine));
     }

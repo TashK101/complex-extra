@@ -35,26 +35,26 @@ export function axisCoordsToPixelCoords(
     };
 }
 
-export function scatterLine(line: Line): Line {
+export function scatterLine(line: Line, smoothness: number): Line {
     switch (line.type) {
         case LineType.Curve:
-        case LineType.Dots:
+        case LineType.Dot:
         case LineType.Sharp:
             return line;
         case LineType.Ellipse:
-            return ellipseToPolygon(line);
+            return ellipseToPolygon(line, smoothness);
         case LineType.Rectangle:
-            return rectangleToPolygon(line);
+            return rectangleToPolygon(line, smoothness);
         case LineType.Segment:
-            return segmentToSharp(line);
+            return segmentToSharp(line, smoothness);
     }
 }
 
-function segmentToSharp(line: Line): Line {
+function segmentToSharp(line: Line, smoothness: number): Line {
     const points: zArray = [];
     const [x1, y1, x2, y2] = [...line.values[0], ...line.values[1]];
     const length = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
-    for (let i = 0; i < length; i+= 0.01) {
+    for (let i = 0; i < length; i+= smoothness) {
         points.push([x1 + (i/length) * (x2-x1), y1 + (i/length) * (y2-y1)]);
     }
     return {
@@ -65,21 +65,21 @@ function segmentToSharp(line: Line): Line {
     }
 }
 
-function rectangleToPolygon(line: Line): Line {
+function rectangleToPolygon(line: Line, smoothness: number): Line {
     const points: zArray = [];
     let [x1, y1, x2, y2] = [...line.values[0], ...line.values[1]];
     [x1, x2] = [Math.min(x1, x2), Math.max(x1, x2)];
     [y1, y2] = [Math.min(y1, y2), Math.max(y1, y2)];
-    for (let i = x1; i < x2; i+=0.01) {
+    for (let i = x1; i < x2; i+=smoothness) {
         points.push([i, y1]);
     }
-    for (let i = y1; i < y2; i+=0.01) {
+    for (let i = y1; i < y2; i+=smoothness) {
         points.push([x2, i]);
     }
-    for (let i = x2; i > x1; i-=0.01) {
+    for (let i = x2; i > x1; i-=smoothness) {
         points.push([i, y2]);
     }
-    for (let i = y2; i > y1; i-=0.01) {
+    for (let i = y2; i > y1; i-=smoothness) {
         points.push([x1, i]);
     }
     points.push([x1, y1]);
@@ -91,17 +91,17 @@ function rectangleToPolygon(line: Line): Line {
     }
 }
 
-function ellipseToPolygon(line: Line): Line {
+function ellipseToPolygon(line: Line, smoothness: number): Line {
     const points: zArray = [];
     const [cx, cy, x1, y1] = [...line.values[0], ...line.values[1]];
     const [rx, ry] = [Math.abs(cx - x1), Math.abs(cy - y1)];
 
-    for (let i = -Math.PI/2; i < Math.PI/2; i+=0.01) {
+    for (let i = -Math.PI/2; i < Math.PI/2; i+=smoothness) {
         const x = (rx * ry) / Math.sqrt(ry**2 + rx**2 * Math.tan(i)**2);
         const y = x * Math.tan(i);
         points.push([x+cx, y+cy]);
     }
-    for (let i = Math.PI *3/2; i > Math.PI/2; i-=0.01) {
+    for (let i = Math.PI *3/2; i > Math.PI/2; i-=smoothness) {
         const x = -(rx * ry) / Math.sqrt(ry**2 + rx**2 * Math.tan(i)**2);
         const y = -x * Math.tan(i);
         points.push([x+cx, y+cy]);
