@@ -1,19 +1,13 @@
-.control-container {
-    display: flex;
-    height: fit-content;
-    position: relative;
+.tools-placeholder {
+    width: var(--tools-width);
+    min-width: var(--tools-width);
+    flex-shrink: 0;
 }
 
-.control-placeholder {
-    width: var(--control-width);
-    min-width: var(--control-width);
-    height: 100%;
-}
-
-.control-panel {
+.tools-panel {
     display: flex;
     flex-direction: column;
-    width: var(--control-width);
+    width: var(--tools-width);
     position: fixed;
     top: 50%;
     transform: translate(0%, -50%);
@@ -76,6 +70,7 @@
 .color-picker-icon {
     width: 70%;
     height: 70%;
+    min-height: 20px;
     border-radius: var(--border-radius);
     border: 3px solid var(--bg-color);
     box-sizing: border-box;

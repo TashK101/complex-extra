@@ -4,6 +4,7 @@ import {DrawingSharpLine} from "./DrawingSharpLine.tsx";
 import {axisCoordsToPixelCoords} from "./helpers.ts";
 import {DrawingRectangleLine} from "./DrawingRectangleLine.tsx";
 import {DrawingEllipseLine} from "./DrawingEllipseLine.tsx";
+import {DrawingDots} from "./DrawingDots.tsx";
 
 type Props = {
     line: Line,
@@ -35,6 +36,12 @@ export function DrawLine({line, box, viewRect, transparent}: Props): React.JSX.E
             });
         case LineType.Ellipse:
             return DrawingEllipseLine({
+                line: line,
+                transparent: transparent,
+                getPixelCoords: getPixelCoords,
+            });
+        case LineType.Dot:
+            return DrawingDots({
                 line: line,
                 transparent: transparent,
                 getPixelCoords: getPixelCoords,

@@ -8,11 +8,15 @@ import {Tool} from "../../types/const.ts";
 import {ColorButton} from "./ColorButton.tsx";
 import {DeleteButton} from "./DeleteButton.tsx";
 import {IconShapeOval2} from "../../Icons/IconShapeOval2.tsx";
+import {IconPencilDots} from "../../Icons/IconPencilDots.tsx";
 
 export function Panel(): React.JSX.Element {
     return (
         <>
-            <div className={"control-panel"}>
+            <div className={"tools-panel"}>
+                <ToolButton tool={Tool.Dot} description={'Точка'}>
+                    <IconPencilDots/>
+                </ToolButton>
                 <ToolButton tool={Tool.Pencil} description={'Рисовать'}>
                     <IconPencilSharp/>
                 </ToolButton>
@@ -31,7 +35,7 @@ export function Panel(): React.JSX.Element {
                 <DeleteButton/>
                 <ColorButton/>
             </div>
-            <div className={"control-placeholder"}/>
+            <div className={"tools-placeholder"}/>
         </>
     );
 }

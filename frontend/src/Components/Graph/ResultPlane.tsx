@@ -16,11 +16,11 @@ export function ResultPlane(): React.JSX.Element {
             const bounds = {top: -Infinity, left: Infinity, bottom: Infinity, right: -Infinity};
 
             for (let line of result) {
-            bounds.right = Math.max(...line.values.map(p => p[0]), bounds.right);
-            bounds.left = Math.min(...line.values.map(p => p[0]), bounds.left);
-            bounds.top = Math.max(...line.values.map(p => p[1]), bounds.top);
-            bounds.bottom = Math.min(...line.values.map(p => p[1]), bounds.bottom);
-        }
+                bounds.right = Math.max(...line.values.map(p => p[0]), bounds.right);
+                bounds.left = Math.min(...line.values.map(p => p[0]), bounds.left);
+                bounds.top = Math.max(...line.values.map(p => p[1]), bounds.top);
+                bounds.bottom = Math.min(...line.values.map(p => p[1]), bounds.bottom);
+            }
 
             const offset = Math.max(bounds.top - bounds.bottom, bounds.right - bounds.left) * 0.55;
             const newRect = {
@@ -30,11 +30,11 @@ export function ResultPlane(): React.JSX.Element {
                 right: (bounds.left + bounds.right) / 2 + offset,
             };
 
-            if (offset < (viewRect.top - viewRect.bottom) / 20
+            if (offset > 0 && (offset < (viewRect.top - viewRect.bottom) / 20
                 || newRect.top > viewRect.top
                 || newRect.bottom < viewRect.bottom
                 || newRect.right > viewRect.right
-                || newRect.left < viewRect.left) {
+                || newRect.left < viewRect.left)) {
                 dispatch(resizeResult(newRect));
             }
         }
@@ -44,7 +44,7 @@ export function ResultPlane(): React.JSX.Element {
     return (
         <div className={'graph-show graph-window'} ref={boxRef}>
             <svg style={{height: '100%', width: '100%'}}>
-                {result.map( line => (
+                {result.map(line => (
                     <DrawLine
                         key={line.id}
                         line={line}

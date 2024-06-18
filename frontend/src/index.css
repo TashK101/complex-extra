@@ -7,7 +7,7 @@
   --axis-color: gray;
   --select-color: #4f4fb6;
   --border-radius: 3px;
-  --control-width: 50px;
+  --tools-width: 50px;
   --error-color: #ff456a;
   --warning-color: #ffa92a;
 }
@@ -20,4 +20,10 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.control-container {
+  display: flex;
+  height: fit-content;
+  position: relative;
 }
