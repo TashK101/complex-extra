@@ -30,11 +30,11 @@ export function ResultPlane(): React.JSX.Element {
                 right: (bounds.left + bounds.right) / 2 + offset,
             };
 
-            if (offset < (viewRect.top - viewRect.bottom) / 20
+            if (offset > 0 && (offset < (viewRect.top - viewRect.bottom) / 20
                 || newRect.top > viewRect.top
                 || newRect.bottom < viewRect.bottom
                 || newRect.right > viewRect.right
-                || newRect.left < viewRect.left) {
+                || newRect.left < viewRect.left)) {
                 dispatch(resizeResult(newRect));
             }
         }

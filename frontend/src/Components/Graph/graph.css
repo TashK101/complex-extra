@@ -5,20 +5,20 @@
     justify-content: space-evenly;
     width: calc(100% - 2 * var(--tools-width));
     flex-shrink: 1;
-    margin: 0 15px;
+    margin: 15px;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 850px) {
     .graph-box {
         min-width: 200px;
         width: calc((100vw - var(--tools-width)) * 0.9);
     }
 }
 
-@media (min-width: 500px) {
+@media (min-width: 850px) {
     .graph-box {
         min-width: 400px;
-        width: 40vw;
+        width: calc(50vw - 2 * var(--tools-width));
     }
 }
 

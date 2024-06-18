@@ -82,7 +82,13 @@ function App() {
             .map((line) => [line.id, line.values]), currentFunction).then(res => {
             if (res) {
                 if (!resultIsLabeledStrokes(res)) {
-                    res.errorType === ErrorType.CannotConnect ? setWarning(res) : setError(res);
+                    if (res.errorType === ErrorType.CannotConnect) {
+                        setWarning(res);
+                        setError(null);
+                    } else {
+                        setError(res);
+                        setWarning(null);
+                    }
                     return;
                 }
                 setError(null);

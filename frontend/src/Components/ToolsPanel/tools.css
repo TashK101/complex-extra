@@ -70,6 +70,7 @@
 .color-picker-icon {
     width: 70%;
     height: 70%;
+    min-height: 20px;
     border-radius: var(--border-radius);
     border: 3px solid var(--bg-color);
     box-sizing: border-box;
