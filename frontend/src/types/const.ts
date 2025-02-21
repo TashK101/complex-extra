@@ -5,6 +5,7 @@ export enum Tool {
     Ellipse = 'Ellipse',
     Rectangle = 'Rectangle',
     Line = 'Line',
+    ModeSwitch = 'ModeSwitch'
 }
 
 export enum LineType {
@@ -39,4 +40,10 @@ export enum ErrorType {
 
 export enum FunctionStatus {
 
+}
+
+export enum PolarType {
+    Cartesian = "cartesian",
+    PolarDegrees = "polar-degrees",
+    PolarRadians = "polar-radians",
 }

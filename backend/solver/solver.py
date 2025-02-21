@@ -44,7 +44,7 @@ class Solver:
         else:
             return lambda z: z
 
-    # 'real', 'im', 'sin', 'cos', 'tg', 'asin', 'acos', 'atg', 'ln', 'abs', 'phi'
+    # 'real', 'im', 'sin', 'cos', 'tg', 'asin', 'acos', 'atg', 'ln', 'abs', 'phi', 'sh', 'ch', 'th', 'cth', 'sch', 'csch'
     @staticmethod
     def _get_func1(f_name) -> Callable[[complex], complex]:
         if f_name == 'real':
@@ -69,6 +69,19 @@ class Solver:
             return lambda z: np.abs(z)
         if f_name == 'phi':
             return lambda z: cmath.phase(z)
+        # Hyperbolic functions
+        if f_name == 'sh':  # sinh (hyperbolic sine)
+            return lambda z: np.sinh(z)
+        if f_name == 'ch':  # cosh (hyperbolic cosine)
+            return lambda z: np.cosh(z)
+        if f_name == 'th':  # tanh (hyperbolic tangent)
+            return lambda z: np.tanh(z)
+        if f_name == 'cth':  # coth (hyperbolic cotangent)
+            return lambda z: 1 / np.tanh(z)
+        if f_name == 'sch':  # sech (hyperbolic secant)
+            return lambda z: 1 / np.cosh(z)
+        if f_name == 'csch':  # csch (hyperbolic cosecant)
+            return lambda z: 1 / np.sinh(z) 
         raise ParserError(ParserErrorType.NOT_SUPPORTED, f_name)
 
     # log

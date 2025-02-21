@@ -1,6 +1,7 @@
 import functools
 import locale
 import re
+import numpy
 from enum import Enum
 
 from .parserError import ParserError, ParserErrorType
@@ -84,7 +85,7 @@ class Expression:
 
 class Parser:
     constants = ['i', 'pi', 'e']
-    unary_functions = ['real', 'im', 'sin', 'cos', 'tg', 'asin', 'acos', 'atg', 'ln', 'abs', 'phi']
+    unary_functions = ['real', 'im', 'sin', 'cos', 'tg', 'asin', 'acos', 'atg', 'ln', 'abs', 'phi', 'sh', 'ch', 'th', 'cth', 'sch', 'csch']
     binary_functions = ['log']
     keywords = {*constants, *unary_functions, *binary_functions}
     unary_operators = ['-']
@@ -307,3 +308,9 @@ def _priority_comparator(a, b):
     if a[1] > b[1]:
         return 1
     return 0
+
+def P2R(radii, angles):
+    return radii * numpy.exp(1j*angles)
+
+def R2P(x):
+    return abs(x), numpy.angle(x)

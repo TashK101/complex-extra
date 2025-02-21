@@ -128,3 +128,20 @@
 .graph-mouse-coords-label {
     margin: 0 10px;
 }
+
+.toast-container {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.toast-error {
+    background-color: red;
+    color: white;
+    border-radius: 5px;
+}
+
+.toast-warning {
+    background-color: orange;
+    color: black;
+    border-radius: 5px;
+}

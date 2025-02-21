@@ -5,7 +5,7 @@ from solver.parser import ExpressionType, ParserError
 
 app = Flask(__name__)
 
-known_equations: dict[str, Equation] = {}
+known_equations: dict[str, Equation] = {} 
 
 
 @app.route("/strokes", methods=['GET', 'POST', 'OPTIONS'])

@@ -9,6 +9,8 @@ import {ColorButton} from "./ColorButton.tsx";
 import {DeleteButton} from "./DeleteButton.tsx";
 import {IconShapeOval2} from "../../Icons/IconShapeOval2.tsx";
 import {IconPencilDots} from "../../Icons/IconPencilDots.tsx";
+import { IconModeSwitch } from '../../Icons/IconModeSwitch.tsx';
+
 
 export function Panel(): React.JSX.Element {
     return (
@@ -34,6 +36,7 @@ export function Panel(): React.JSX.Element {
                 </ToolButton>
                 <DeleteButton/>
                 <ColorButton/>
+            
             </div>
             <div className={"tools-placeholder"}/>
         </>

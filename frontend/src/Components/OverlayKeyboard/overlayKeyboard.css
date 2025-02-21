@@ -1,3 +1,41 @@
+.overlay {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    width: 30%;
+}
+
+.overlay-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.overlay-button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+}
+
+.overlay-close-button {
+    margin-top: 10px;
+    width: 100%;
+    background-color: hwb(251 0% 47%);
+    color: white;
+    padding: 5px;
+}
+
+.symbol-toggle-button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 16px;
+}
+
 .function-form {
     background-color: var(--bg-color);
     border-radius: var(--border-radius);
@@ -26,6 +64,22 @@
     background-color: var(--accent-color-light);
     color: white;
     border: var(--accent-color) 3px solid;
+    margin: 1px;
+}
+
+.function-button-overlay {
+    border-radius: var(--border-radius);
+    background-color: white;
+    
+    border: var(--accent-color) 3px solid;
+    margin: 1px;
+}
+
+.function-button-inactive {
+    border-radius: var(--border-radius);
+    background-color: rgba(230, 230, 230, 0.508);
+    color: rgb(0, 0, 0);
+    border: rgb(45, 45, 45) 1px solid;
     margin: 1px;
 }
 
@@ -79,15 +133,4 @@
     margin-right: 3px;
     margin-left: 5px;
     align-items: baseline;
-}
-
-.alternative-input-label
-{
-    position: relative;
-    display: flex;
-    cursor: pointer;
-    margin: 1px;
-    text-align: center;
-    vertical-align: middle;
-    
 }

@@ -5,7 +5,9 @@ import {useMousePositionOnPlane} from "../../hooks/useMousePositionOnPlane.ts";
 
 type GraphProps = PropsWithChildren<{
     viewRect: ViewRectangle;
-}>
+    polarMode: boolean; 
+    radianMode: boolean;
+}>;
 
 function getLabels(lower: number, higher: number, cellSize: number): string[] {
     const labels: string[] = [];
@@ -17,7 +19,18 @@ function getLabels(lower: number, higher: number, cellSize: number): string[] {
     return labels;
 }
 
-export function Graph({viewRect, ...props}: GraphProps): JSX.Element {
+// Convert Cartesian to Polar
+const cartesianToPolar = (x: number, y: number) => {
+    const r = Math.sqrt(x * x + y * y);
+    const theta = Math.atan2(y, x) * (180 / Math.PI); // Convert to degrees
+    return { r: r.toFixed(2), theta: theta.toFixed(0) };
+};
+
+function degreesToRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+}
+
+export function Graph({viewRect, polarMode, radianMode, ...props}: GraphProps): JSX.Element {
     const {top, bottom, right, left} = viewRect;
     const {x, y} = axisCoordsToPixelCoords(0, 0, {width: 100, height: 100}, viewRect);
     const boxRef = useRef<HTMLDivElement>(null);
@@ -30,8 +43,10 @@ export function Graph({viewRect, ...props}: GraphProps): JSX.Element {
     const labelsY = getLabels(bottom, top, cellSizeY);
     const firsts = axisCoordsToPixelCoords(parseFloat(labelsX[0]), parseFloat(labelsY[0]), {width: 100, height: 100}, viewRect);
     const lasts = axisCoordsToPixelCoords(parseFloat(labelsX[labelsX.length-1]), parseFloat(labelsY[labelsY.length-1]), {width: 100, height: 100}, viewRect);
+    
     let styleX = {paddingTop: '0'};
     let styleY = {paddingRight: '0', paddingLeft: '0', alignRight: false};
+    
     if (bottom > 0) {
         styleX.paddingTop = 'calc(100% - 1em)';
     } else if (top > 0) {
@@ -45,11 +60,19 @@ export function Graph({viewRect, ...props}: GraphProps): JSX.Element {
         styleY.paddingLeft = `calc(min(100%, ${x}%))`;
     }
 
+    // Convert axis coordinates to polar if in polar mode
+    let mouseCoordsDisplay = polarMode ? cartesianToPolar(Number(axisX), Number(axisY)) : { r: axisX, theta: axisY };
+    if (radianMode) mouseCoordsDisplay.theta = degreesToRadians(Number(mouseCoordsDisplay.theta));
+
     return (
         <div className={"graph-container"}>
             <div className={"graph-mouse-coords-container"}>
-                <span className={"graph-mouse-coords-label"}>{axisX ?? '-'}</span>
-                <span className={"graph-mouse-coords-label"}>{axisY ?? '-'}</span>
+                <span className={"graph-mouse-coords-label"}>
+                    {polarMode ? `r: ${mouseCoordsDisplay.r}` : `x: ${axisX ?? '0'}`}
+                </span>
+                <span className={"graph-mouse-coords-label"}>
+                    {polarMode ? `θ: ${mouseCoordsDisplay.theta}` : `y: ${axisY ?? '0'}`}
+                </span>
             </div>
             <div className={"graph-box"}>
                 <div
@@ -66,7 +89,6 @@ export function Graph({viewRect, ...props}: GraphProps): JSX.Element {
                         backgroundImage:
                             `linear-gradient(to right, transparent calc(${x}% - 1px),` +
                             ` var(--axis-color) calc(${x}%), transparent calc(${x}% + 1px)),` +
-
                             `linear-gradient(to bottom, transparent calc(${y}% - 1px),` +
                             ` var(--axis-color) calc(${y}%), transparent calc(${y}% + 1px))`,
                     }}
@@ -85,7 +107,8 @@ export function Graph({viewRect, ...props}: GraphProps): JSX.Element {
                                 <p className={'graph-label graph-label-x'} style={{opacity: parseFloat(l) === 0 ? '0' : '0.7'}}>
                                     {l}
                                 </p>
-                            </li>))}
+                            </li>
+                        ))}
                     </ul>
                     <ul
                         draggable={false}
@@ -105,10 +128,11 @@ export function Graph({viewRect, ...props}: GraphProps): JSX.Element {
                                         opacity: parseFloat(l) === 0 ? '0' : '0.7',
                                         right: styleY.alignRight ? '5px' : 'auto',
                                         left: styleY.alignRight ? 'auto' : '5px'
-                                }}>
+                                    }}>
                                     {l}
                                 </p>
-                            </li>))}
+                            </li>
+                        ))}
                     </ul>
                 </div>
                 {props.children}
