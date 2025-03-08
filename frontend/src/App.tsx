@@ -1,5 +1,4 @@
 import './Components/Graph/graph.css';
-import 'react-toastify/dist/ReactToastify.css';
 import {Graph} from "./Components/Graph/Graph.tsx";
 import {Panel} from "./Components/ToolsPanel/Panel.tsx";
 import {DrawingPlane} from "./Components/Graph/DrawingPlane.tsx";
@@ -12,7 +11,6 @@ import {scatterLine} from "./Components/Graph/Drawing/helpers.ts";
 import {ComplexError, ErrorType, LineType} from "./types/const.ts";
 import {FunctionForm} from "./Components/Function/FunctionForm.tsx";
 import {GraphSettings} from "./Components/Graph/GraphSettings.tsx";
-import {toast, ToastContainer } from 'react-toastify';
 
 
 const errorRegex = '^(\\d+)\\s(.*)';
@@ -38,28 +36,34 @@ function resultIsLabeledStrokes(maybeLabeledStrokes: any): maybeLabeledStrokes i
 
 async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | ComplexError> {
     try {
-        const response = await fetch("/strokes?" + new URLSearchParams({f: f}).toString(), {
+        const response = await fetch("/strokes?" + new URLSearchParams({ f: f }).toString(), {
             method: 'POST',
-            body: JSON.stringify({z})
+            body: JSON.stringify({ z }),
         });
+
         if (response.status === 200) {
             return response.json();
         }
+
         if (response.status === 400) {
-            const responseError = await response.text().then(text => text.match(errorRegex));
+            const responseError = await response.text().then((text) => text.match(errorRegex));
             if (responseError) {
-                return {errorType: getErrorType(responseError[1]), errorText: responseError[2]}
+                const errorMessage = responseError[2];
+                const errorType = getErrorType(responseError[1]);
+                return { errorType, errorText: errorMessage };
             }
         }
+
         if (response.status === 500) {
-            const cantConnect = await response.text().then(text => text.startsWith('Proxy error'));
+            const cantConnect = await response.text().then((text) => text.startsWith('Proxy error'));
             if (cantConnect) {
-                return {errorType: ErrorType.CannotConnect}
+                return { errorType: ErrorType.CannotConnect };
             }
         }
-        return {errorType: ErrorType.Unknown}
+
+        return { errorType: ErrorType.Unknown };
     } catch (e) {
-        return {errorType: ErrorType.Unknown}
+        return { errorType: ErrorType.Unknown };
     }
 }
 

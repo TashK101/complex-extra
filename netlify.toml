@@ -1,0 +1,8 @@
+[build]
+  command = "npm install --prefix frontend && npm run build --prefix frontend"
+  publish = "frontend/build"
+
+[[redirects]]
+  from = "/api/*"
+  to = "http://localhost:5000/api/:splat"
+  status = 200
