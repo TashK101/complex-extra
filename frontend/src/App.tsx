@@ -36,7 +36,7 @@ function resultIsLabeledStrokes(maybeLabeledStrokes: any): maybeLabeledStrokes i
 
 async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | ComplexError> {
     try {
-        const response = await fetch("/strokes?" + new URLSearchParams({ f: f }).toString(), {
+        const response = await fetch("https://complex.pythonanywhere.com/strokes?" + new URLSearchParams({ f: f }).toString(), {
             method: 'POST',
             body: JSON.stringify({ z }),
         });
