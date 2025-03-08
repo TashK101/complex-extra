@@ -2,11 +2,16 @@ from flask import Flask, request
 from solver.z_array import ZArray, ZLabeledArray
 from solver.equation import Equation
 from solver.parser import ExpressionType, ParserError
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+cors = CORS(app, origins=['http://localhost:5000', 'https://complex-variable.netlify.app'])
 
 known_equations: dict[str, Equation] = {} 
 
+@app.route("/")
+def helloWorld():
+  return "Hello, cross-origin-world!"
 
 @app.route("/strokes", methods=['GET', 'POST', 'OPTIONS'])
 def main():
