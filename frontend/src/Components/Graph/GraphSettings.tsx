@@ -1,5 +1,7 @@
-import {PropsWithChildren, useState} from "react";
+import {PropsWithChildren, useEffect, useState, useRef} from "react";
 import {ViewRectangle} from "../../types/const.ts";
+
+
 
 type Props = PropsWithChildren<{
     viewRect: ViewRectangle,
@@ -7,6 +9,42 @@ type Props = PropsWithChildren<{
 }>
 
 export function GraphSettings({viewRect, changeViewRect, children}: Props): React.JSX.Element {
+    const graphContainerRef = useRef<HTMLDivElement>(null);
+    
+    useEffect(() => {
+        const handleWheel = (e: WheelEvent) => {
+            e.preventDefault();
+            const zoomFactor = 1.1;
+            const scale = e.deltaY < 0 ? 1 / zoomFactor : zoomFactor;
+    
+            const x = (viewRect.left + viewRect.right) / 2;
+            const y = (viewRect.top + viewRect.bottom) / 2;
+            const size = (viewRect.right - viewRect.left) * scale;
+    
+            changeViewRect({
+                left: x - size / 2,
+                right: x + size / 2,
+                top: y + size / 2,
+                bottom: y - size / 2,
+            });
+        };
+    
+        window.addEventListener('wheel', handleWheel, { passive: false });
+        return () => window.removeEventListener('wheel', handleWheel);
+    }, [viewRect]);
+
+    useEffect(() => {
+        const centerX = (viewRect.left + viewRect.right) / 2;
+        const centerY = (viewRect.top + viewRect.bottom) / 2;
+        const size = viewRect.right - viewRect.left;
+    
+        setValues({
+            x: centerX.toString(),
+            y: centerY.toString(),
+            size: size.toString(),
+        });
+    }, [viewRect]);
+    
     const [values, setValues] = useState<{ x: string, y: string, size: string }>({
         x: `${viewRect.right / 2 + viewRect.left / 2}`,
         y: `${viewRect.top / 2 + viewRect.bottom / 2}`,

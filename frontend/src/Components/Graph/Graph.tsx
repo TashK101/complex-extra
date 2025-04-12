@@ -2,6 +2,7 @@ import {PropsWithChildren, useRef} from "react";
 import {axisCoordsToPixelCoords, getCellSize, trimNumberString} from "./Drawing/helpers.ts";
 import {ViewRectangle} from "../../types/const.ts";
 import {useMousePositionOnPlane} from "../../hooks/useMousePositionOnPlane.ts";
+import "./graph.css";
 
 type GraphProps = PropsWithChildren<{
     viewRect: ViewRectangle;

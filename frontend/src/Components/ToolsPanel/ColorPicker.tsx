@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import './tools.css';
+import './ToolsPanel.css';
 
 type Props = {
     value: string;

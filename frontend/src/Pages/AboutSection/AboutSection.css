@@ -1,0 +1,45 @@
+
+.about-details {}
+
+.single_about_details {}
+
+section {
+    margin: 30px;
+}
+
+@media only screen and (max-width:768px) {
+    .single_about_details {
+        padding-bottom: 60px;
+    }
+}
+
+.single_about_details h3 {
+    color: #000000;
+    font-size: 45px;
+    line-height: 50px;
+    margin: 0;
+    font-weight: 500;
+}
+
+.single_about_details span {
+    background: #00bcd4 none repeat scroll 0 0;
+    display: block;
+    height: 3px;
+    margin: 20px 0;
+    width: 70px;
+}
+
+.mb20 {
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.single_about_details p {}
+
+.single_about_details_img {
+    text-align: center;
+}
+
+.single_about_details_img img {
+    display: inline-block;
+}

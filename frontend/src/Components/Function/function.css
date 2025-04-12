@@ -1,17 +1,3 @@
-.function-form {
-    background-color: var(--bg-color);
-    border-radius: var(--border-radius);
-    border: var(--accent-color-light) 5px solid;
-    height: fit-content;
-    width: 50%;
-    min-width: fit-content;
-    box-sizing: border-box;
-    padding: 0 10px;
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    flex-grow: 1;
-}
 
 .function-form-error {
     border-color: var(--error-color);
@@ -25,7 +11,7 @@
     border-radius: var(--border-radius);
     background-color: var(--accent-color-light);
     color: white;
-    border: var(--accent-color) 3px solid;
+    border: var(--accent-color) 2px solid;
     margin: 1px;
 }
 
@@ -35,9 +21,9 @@
 
 .function-string, .settings-input {
     display: block;
-    border: 3px solid var(--accent-color-light);
+    border: 2px solid lightblue;
     margin: 5px;
-    border-radius: var(--border-radius);
+    border-radius: 2px;
 }
 
 .function-string {
@@ -52,7 +38,7 @@
 
 .graph-settings-form {
     display: flex;
-    border: 5px solid var(--accent-color-light);
+    border: 2px solid var(--accent-color-light);
     border-radius: var(--border-radius);
     padding: 0 10px;
     justify-content: center;

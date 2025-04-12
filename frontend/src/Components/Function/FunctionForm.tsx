@@ -34,8 +34,7 @@ export function FunctionForm({error, warning, onChange, polarMode}: Props): Reac
             : warning
                 ? 'function-form function-form-warning'
                 : 'function-form'}>
-        
-            <span>f=</span>
+    
             
             <input
                 name={'function'}
@@ -60,7 +59,7 @@ export function FunctionForm({error, warning, onChange, polarMode}: Props): Reac
                 className={'function-button'}
                 onClick={toggleOverlay}
             >
-                Экранный ввод
+                Ввести
             </button>
 
             {showOverlay && (

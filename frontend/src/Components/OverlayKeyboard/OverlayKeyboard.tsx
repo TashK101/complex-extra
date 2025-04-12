@@ -77,17 +77,17 @@ export function OverlayKeyboard({ onSelect, onClose }: Props): React.JSX.Element
     return (
         <div className="overlay">
             <div className="tab-buttons">
-                <button className={activeTab === 'operators' ? 'active function-button' : 'function-button-inactive'} type="button" onClick={() => setActiveTab('operators')}>Operators</button>
-                <button className={activeTab === 'functions' ? 'active function-button' : 'function-button-inactive'} type="button" onClick={() => setActiveTab('functions')}>Functions</button>
-                <button className={activeTab === 'constants' ? 'active function-button' : 'function-button-inactive'} type="button" onClick={() => setActiveTab('constants')}>Constants</button>
-                <button className={activeTab === 'parentheses' ? 'active function-button' : 'function-button-inactive'} type="button" onClick={() => setActiveTab('parentheses')}>Parentheses</button>
-                <button className={activeTab === 'separators' ? 'active function-button' : 'function-button-inactive'} type="button" onClick={() => setActiveTab('separators')}>Separators</button>
+                <button className={activeTab === 'operators' ? 'active function-button' : 'function-button-inactive'} type="button" onClick={() => setActiveTab('operators')}>Операторы</button>
+                <button className={activeTab === 'functions' ? 'active function-button' : 'function-button-inactive'} type="button" onClick={() => setActiveTab('functions')}>Функции</button>
+                <button className={activeTab === 'constants' ? 'active function-button' : 'function-button-inactive'} type="button" onClick={() => setActiveTab('constants')}>Константы</button>
+                <button className={activeTab === 'parentheses' ? 'active function-button' : 'function-button-inactive'} type="button" onClick={() => setActiveTab('parentheses')}>Скобки</button>
+                <button className={activeTab === 'separators' ? 'active function-button' : 'function-button-inactive'} type="button" onClick={() => setActiveTab('separators')}>Разделители</button>
             </div>
             <div className="overlay-content">
                 {renderSymbols()}
             </div>
             <button onClick={onClose} className="overlay-close-button" type="button">
-                Close
+                Скрыть
             </button>
         </div>
     );

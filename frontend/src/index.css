@@ -1,12 +1,11 @@
 :root {
-  --accent-color: #7373da;
-  --accent-color-light: #9292f6;
-  --bg-color: white;
+  --accent-color: #0000003b;
+  --accent-color-light: #444444;
   --text-color: black;
   --grid-color: #d7d7d7;
   --axis-color: gray;
-  --select-color: #4f4fb6;
-  --border-radius: 3px;
+  --select-color: #0000ff;
+  --border-radius: 0px;
   --tools-width: 50px;
   --error-color: #ff456a;
   --warning-color: #ffa92a;
@@ -23,8 +22,12 @@ code {
 }
 
 .control-container {
-  display: flex;
+  display: block;
   height: fit-content;
   position: relative;
+}
+
+#root {
+  padding-top: 60px; /* Adjust this value based on your fixed header height */
 }
 

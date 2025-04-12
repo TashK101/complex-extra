@@ -37,11 +37,10 @@
 }
 
 .function-form {
-    background-color: var(--bg-color);
-    border-radius: var(--border-radius);
-    border: var(--accent-color-light) 5px solid;
+    margin-top: 10px;
     height: fit-content;
-    width: 50%;
+    width: 30%;
+    border-radius: 2px;
     min-width: fit-content;
     box-sizing: border-box;
     padding: 0 10px;
@@ -61,9 +60,10 @@
 
 .function-button {
     border-radius: var(--border-radius);
-    background-color: var(--accent-color-light);
+    background-color: lightskyblue;
     color: white;
-    border: var(--accent-color) 3px solid;
+    border: var(--accent-color) 2px solid;
+    border-radius: 5px;
     margin: 1px;
 }
 
@@ -77,21 +77,28 @@
 
 .function-button-inactive {
     border-radius: var(--border-radius);
-    background-color: rgba(230, 230, 230, 0.508);
+    background-color: skyblue;
     color: rgb(0, 0, 0);
-    border: rgb(45, 45, 45) 1px solid;
+    border: var(--accent-color) 2px solid;
+    border-radius: 5px;
     margin: 1px;
 }
 
 .function-button:hover {
-    background-color: var(--accent-color);
+    background-color: lightblue;
 }
 
 .function-string, .settings-input {
     display: block;
-    border: 3px solid var(--accent-color-light);
     margin: 5px;
-    border-radius: var(--border-radius);
+    border-radius:5px;
+}
+
+.function-string:focus-visible {
+    display: block;
+    border: 2px solid rgb(0, 95, 127);
+    margin: 5px;
+    border-radius:5px;
 }
 
 .function-string {
@@ -106,7 +113,7 @@
 
 .graph-settings-form {
     display: flex;
-    border: 5px solid var(--accent-color-light);
+    border: 2px solid var(--accent-color-light);
     border-radius: var(--border-radius);
     padding: 0 10px;
     justify-content: center;
