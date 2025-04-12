@@ -25,6 +25,7 @@ code {
   display: block;
   height: fit-content;
   position: relative;
+  margin-bottom: 200px;
 }
 
 #root {
