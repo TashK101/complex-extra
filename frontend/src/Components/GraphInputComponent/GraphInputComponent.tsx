@@ -1,78 +1,134 @@
-import { useState, useEffect } from 'react';
-import { changeColor } from "../../store/action.ts";
+import { useEffect, useState, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { useAppDispatch, useAppSelector } from '../../hooks/index.ts';
+import {
+    addUserFunction,
+    removeUserFunction,
+    updateUserFunction
+} from '../../store/action.ts';
 import "./GraphInputComponent.css";
 import ArrowButton from './ArrowButton';
-import { useAppDispatch, useAppSelector } from '../../hooks/index.ts';
+import { OverlayKeyboard } from "../OverlayKeyboard/OverlayKeyboard.tsx";
 
 const buttonColors: string[] = [
-    '#990000',
-    '#997700',
-    '#006600',
-    '#000099',
-    '#000000',
-    '#ff2222',
-    '#ff9922',
-    '#22c555',
-    '#2255ff',
-    '#cccccc',
+    '#990000', '#997700', '#006600', '#000099', '#000000',
+    '#ff2222', '#ff9922', '#22c555', '#2255ff', '#cccccc',
 ];
 
-const GraphInputComponent = () => {
-    const currentColor = useAppSelector(state => state.color);
+const GraphInputComponent = ({ onRecalcAll }) => {
     const dispatch = useAppDispatch();
+    const inputs = useAppSelector(state => state.userFunctions);
 
-    function handleChange(value: string): void {
-        dispatch(changeColor(value));
-    }
+    const [focusedInputId, setFocusedInputId] = useState<string | null>(null);
+    const [showOverlay, setShowOverlay] = useState(false);
+    const [caretPos, setCaretPos] = useState<{ start: number; end: number } | null>(null);
 
-    const [inputs, setInputs] = useState<{ value: string, color: string }[]>([]);
-    const [inputCount, setInputCount] = useState(1);
 
-    const [colorIndex, setColorIndex] = useState(0);
-
-    // Retrieve from localStorage when component mounts
-    useEffect(() => {
-        const inputItem = localStorage.getItem('graphInputs');
-        const savedInputs = inputItem ?
-            JSON.parse(inputItem)
-            : [];
-
-        const countItem = localStorage.getItem('inputCount');
-        const savedCount = countItem ?
-            parseInt(countItem)
-            : 0;
-
-        setInputs(savedInputs);
-        setInputCount(savedCount);
-    }, []);
+    const overlayRef = useRef<HTMLDivElement | null>(null);
+    const firstInputRef = useRef<HTMLInputElement | null>(null);
+    const activeInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
-        localStorage.setItem('graphInputs', JSON.stringify(inputs));
-        localStorage.setItem('inputCount', inputCount.toString());
-    }, [inputs, inputCount]);
+        if (showOverlay && firstInputRef.current) {
+            firstInputRef.current.focus();
+            setFocusedInputId(inputs[0]?.id ?? null);
+        }
+    }, [showOverlay, inputs]);
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Node;
+
+            // If click is inside the keyboard, ignore
+            if (overlayRef.current?.contains(target)) return;
+
+            // If click is inside any input, ignore
+            const isInput = (target instanceof HTMLElement) && target.tagName === 'INPUT';
+            if (isInput) return;
+
+            // Otherwise, it's outside
+            setShowOverlay(false);
+        };
+
+        if (showOverlay) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showOverlay]);
+
+    useEffect(() => {
+        if (inputs.length === 0) {
+            dispatch(addUserFunction({
+                id: uuidv4(),
+                expression: 'z',
+                color: buttonColors[0]
+            }));
+        }
+    }, [inputs.length, dispatch]);
 
     const addInput = () => {
-        const randomColor = buttonColors[Math.floor(Math.random() * buttonColors.length)];
-        const newInput = { value: 'z', color: randomColor };
-        setInputs([...inputs, newInput]);
-        setInputCount(inputCount + 1);
+        const newColor = buttonColors[Math.floor(Math.random() * buttonColors.length)];
+        dispatch(addUserFunction({
+            id: uuidv4(),
+            expression: 'z',
+            color: newColor
+        }));
     };
 
-    const removeInput = (index: number) => {
-        const newInputs = [...inputs];
-        newInputs.splice(index, 1);
-        setInputs(newInputs);
-        setInputCount(inputCount - 1);
+    const removeInput = (id: string) => {
+        dispatch(removeUserFunction(id));
     };
 
-    const handleInputChange = (e: any, index: number) => {
-        const newInputs = [...inputs];
-        newInputs[index] = e.target.value;
-        setInputs(newInputs);
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+        const newExpr = e.target.value;
+        const func = inputs.find(f => f.id === id);
+        if (!func) return;
+        dispatch(updateUserFunction({
+            id,
+            newExpr,
+            color: func.color,
+        }));
     };
 
-    const handleArrowClick = (index: number) => {
-        console.log(`Drawing graph for input ${index}`);
+    const handleSymbolSelect = (symbol: string) => {
+        const inputEl = activeInputRef.current;
+        if (!inputEl || !focusedInputId || !caretPos) return;
+
+        const { start, end } = caretPos;
+        const before = inputEl.value.slice(0, start);
+        const after = inputEl.value.slice(end);
+        const newValue = before + symbol + after;
+
+        // Set value manually
+        inputEl.value = newValue;
+
+        // Restore caret after insertion
+        inputEl.focus();
+        inputEl.setSelectionRange(start + symbol.length, start + symbol.length);
+        setCaretPos({ start: start + symbol.length, end: start + symbol.length });
+
+        // Update Redux
+        const func = inputs.find(f => f.id === focusedInputId);
+        if (!func) return;
+
+        dispatch(updateUserFunction({
+            id: func.id,
+            newExpr: newValue,
+            color: func.color,
+        }));
+    };
+
+
+
+    const toggleOverlay = () => {
+        setShowOverlay(prev => !prev);
+    };
+
+    const handleRecalcAll = () => {
+        console.log('Recalculating all functions:', inputs);
+        onRecalcAll();
     };
 
     return (
@@ -89,9 +145,8 @@ const GraphInputComponent = () => {
             }}
         >
             {inputs.map((input, index) => (
-                <div className='input-cross-container'>
+                <div className='input-cross-container' key={input.id}>
                     <div
-                        key={index}
                         style={{
                             display: 'flex',
                             width: '100%',
@@ -102,10 +157,26 @@ const GraphInputComponent = () => {
                         }}
                     >
                         <input
-
+                            ref={input.id === focusedInputId ? activeInputRef : null}
+                            onFocus={(e) => {
+                                setFocusedInputId(input.id);
+                                activeInputRef.current = e.currentTarget;
+                                const pos = {
+                                    start: e.currentTarget.selectionStart ?? 0,
+                                    end: e.currentTarget.selectionEnd ?? 0,
+                                };
+                                setCaretPos(pos);
+                            }}
+                            onSelect={(e) => {
+                                const target = e.currentTarget;
+                                setCaretPos({
+                                    start: target.selectionStart ?? 0,
+                                    end: target.selectionEnd ?? 0,
+                                });
+                            }}
                             type="text"
-                            value={input.value}
-                            onChange={(e) => handleInputChange(e, index)}
+                            value={input.expression}
+                            onChange={(e) => handleInputChange(e, input.id)}
                             placeholder="Введите функцию"
                             style={{
                                 flex: 1,
@@ -115,14 +186,18 @@ const GraphInputComponent = () => {
                                 outline: 'none',
                             }}
                         />
-                        <ArrowButton
-                            onClick={() => handleArrowClick(index)}
-                            backgroundColor={input.color}
-                            isDots={input.value === ""}
+                        <div
+                            style={{
+                                width: 24,
+                                height: 24,
+                                borderRadius: '50%',
+                                backgroundColor: input.color,
+                                marginLeft: 10,
+                            }}
                         />
                     </div>
                     <button
-                        onClick={() => removeInput(index)}
+                        onClick={() => removeInput(input.id)}
                         style={{
                             background: 'none',
                             border: 'none',
@@ -130,14 +205,57 @@ const GraphInputComponent = () => {
                             cursor: 'pointer',
                             marginLeft: '5px',
                         }}
+                        aria-label="Remove function"
                     >
                         X
                     </button>
                 </div>
             ))}
-            <button onClick={addInput} style={{ padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>
-                Добавить функцию
+
+            <div
+                className='input-cross-container'
+                style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+            >
+                <button
+                    onClick={addInput}
+                    style={{
+                        padding: '10px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        flexGrow: 1,
+                    }}
+                >
+                    Добавить функцию
+                </button>
+                <ArrowButton
+                    onClick={handleRecalcAll}
+                    backgroundColor='#111166'
+                    isDots={false}
+                />
+            </div>
+
+            <button
+                onClick={toggleOverlay}
+                style={{
+                    padding: '8px',
+                    borderRadius: '8px',
+                    backgroundColor: '#eee',
+                    border: '1px solid #ccc',
+                    cursor: 'pointer',
+                    marginTop: '10px',
+                }}
+            >
+                Экранный ввод
             </button>
+
+            {showOverlay && (
+                <div ref={overlayRef}>
+                    <OverlayKeyboard
+                        onSelect={handleSymbolSelect}
+                        onClose={() => setShowOverlay(false)}
+                    />
+                </div>
+            )}
         </div>
     );
 };

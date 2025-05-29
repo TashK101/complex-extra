@@ -9,8 +9,18 @@ class Solver:
     constants = Parser.constants
 
     @staticmethod
-    def get_lambda_for_array(exp: Expression) -> Callable[[list[complex]], list[complex]]:
-        return np.vectorize(Solver.get_lambda_function(exp))
+    def get_lambda_for_array(exp: Expression) -> Callable[[list[complex]], list[list[complex]]]:
+        f = Solver.get_lambda_function(exp)
+
+        def wrapper(z_list: list[complex]) -> list[list[complex]]:
+            result = []
+            for z in z_list:
+                value = f(z)
+                # if value is list -> keep it, else wrap in list
+                result.append(value if isinstance(value, list) else [value])
+            return result
+
+        return wrapper
 
     @staticmethod
     def get_lambda_function(exp: Expression) -> Callable[[complex], complex]:
@@ -84,22 +94,46 @@ class Solver:
             return lambda z: 1 / np.sinh(z) 
         raise ParserError(ParserErrorType.NOT_SUPPORTED, f_name)
 
-    # log
+    # log, root
     @staticmethod
     def _get_func2(f_name):
         if f_name == 'log':
-            return lambda x, y: np.log(x+0j) / np.log(y+0j)
+            def multi_valued_log(x, base):
+                x = complex(x)
+                base = complex(base)
+                r = abs(x)
+                theta = cmath.phase(x)
+                logs = []
+                for k in range(-2, 3):  # 5 branches (k=-2 to 2), adjust as needed
+                    logx = np.log(r) + 1j * (theta + 2 * np.pi * k)
+                    logb = np.log(abs(base)) + 1j * cmath.phase(base)
+                    logs.append(logx / logb)
+                return logs
+            return multi_valued_log
+
+        if f_name == 'root':
+            def multi_valued_root(x, n):
+                x = complex(x)
+                n = int(n.real)  # Assume n is real
+                r = abs(x) ** (1 / n)
+                theta = cmath.phase(x)
+                roots = [r * cmath.exp(1j * (theta + 2 * np.pi * k) / n) for k in range(n)]
+                return roots
+            return multi_valued_root
+
         raise ParserError(ParserErrorType.NOT_SUPPORTED, f_name)
+    
 
     @staticmethod
-    def _get_solution_for_func(exp: list[Expression | Token]) -> Callable[[complex], complex]:
+    def _get_solution_for_func(exp: list[Expression | Token]) -> Callable[[complex], complex | list[complex]]:
         if exp[0].type == TokenType.FUNC1:
             solve = Solver._get_func1(exp[0].value)  # func ( exp )
             return lambda z: solve((Solver.get_lambda_function(exp[2]))(z))
         elif exp[0].type == TokenType.FUNC2:
+            func_name = exp[0].value
             solve1 = Solver.get_lambda_function(exp[2])
             solve2 = Solver.get_lambda_function(exp[4])  # func ( exp , exp )
-            return lambda z: Solver._get_func2(exp[0].value)(solve1(z), solve2(z))
+            return lambda z: Solver._get_func2(func_name)(solve1(z), solve2(z))
         raise ParserError(ParserErrorType.NOT_SUPPORTED, exp[0].value)
 
     @staticmethod

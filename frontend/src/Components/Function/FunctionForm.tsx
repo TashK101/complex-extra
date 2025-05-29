@@ -41,7 +41,7 @@ export function FunctionForm({error, warning, onChange, polarMode}: Props): Reac
                 className={'function-string'}
                 placeholder={'Введите функцию'}
                 onChange={handleInputChange}
-                value={input} // Control the input value
+                value={input} 
             />
             
 

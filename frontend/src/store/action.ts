@@ -21,3 +21,11 @@ export const addLine = createAction('ADD_LINE');
 export const addResult = createAction<Line[]>('ADD_RESULT');
 
 export const setGhost = createAction<Line | null>('CHANGE_GHOST');
+
+export const setUserFunctions = createAction<{ id: string, expression: string, color: string }[]>('setUserFunctions');
+
+export const addUserFunction = createAction<{ id: string, expression: string, color: string }>('addUserFunction');
+
+export const removeUserFunction = createAction<string>('removeUserFunction');  // payload is id
+
+export const updateUserFunction = createAction<{ id: string, newExpr: string, color: string }>('updateUserFunction');

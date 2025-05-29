@@ -1,4 +1,4 @@
-import {Line} from "../../../types/lines.ts";
+import { Line } from "../../../types/lines.ts";
 
 type Props = {
     line: Line,
@@ -6,17 +6,25 @@ type Props = {
     getPixelCoords: (p: [number, number]) => [number, number],
 }
 
-export const DrawingDots = ({line, transparent, getPixelCoords}: Props) => {
+export const DrawingDots = ({ line, transparent, getPixelCoords }: Props) => {
     const [x, y] = getPixelCoords(line.values[0]);
     return (
-            <circle
-                cx={x}
-                cy={y}
-                r={3}
-                className={`graph-drawing-line graph-drawing-line-${line.id}`}
-                stroke={line.color}
-                fill={line.color}
-                opacity={transparent ? 0.3 : 1}
-            />
+        <>
+            {line.values.map((point, index) => {
+                const [x, y] = getPixelCoords(point);
+                return (
+                    <circle
+                        key={`${line.id}-${index}`}
+                        cx={x}
+                        cy={y}
+                        r={3}
+                        className={`graph-drawing-line graph-drawing-line-${line.id}`}
+                        
+                        fill={line.color}
+                        opacity={transparent ? 0.3 : 1}
+                    />
+                );
+            })}
+        </>
     );
 }

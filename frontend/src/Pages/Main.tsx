@@ -1,35 +1,27 @@
-
 import { Graph } from "../Components/Graph/Graph.tsx";
 import Panel from "../Components/ToolsPanel/Panel.tsx";
 import { DrawingPlane } from "../Components/Graph/DrawingPlane.tsx";
 import { ResultPlane } from "../Components/Graph/ResultPlane.tsx";
 import { useEffect, useState } from "react";
-import { zLabeledStrokes } from "../types/lines.ts";
+import { Line, zLabeledStrokes } from "../types/lines.ts";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { addResult, changeFunction, resizeDrawing, resizeResult } from "../store/action.ts";
+import { addResult, resizeDrawing, resizeResult } from "../store/action.ts";
 import { scatterLine } from "../Components/Graph/Drawing/helpers.ts";
 import { ComplexError, ErrorType, LineType } from "../types/const.ts";
-import { FunctionForm } from "../Components/Function/FunctionForm.tsx";
 import { GraphSettings } from "../Components/Graph/GraphSettings.tsx";
 import "./Main.css"
 import GraphInputComponent from "../Components/GraphInputComponent/GraphInputComponent.tsx";
 import { ZoomableGraphWrapper } from "../Components/Graph/ZoomableGraphWrapper.tsx";
 
-
 const errorRegex = '^(\\d+)\\s(.*)';
 
 function getErrorType(errorCode: string): ErrorType {
     switch (errorCode) {
-        case '1':
-            return ErrorType.UnknownToken;
-        case '2':
-            return ErrorType.TooManyVariables;
-        case '3':
-            return ErrorType.NotImplemented;
-        case '4':
-            return ErrorType.InvalidExpression;
-        default:
-            return ErrorType.Unknown;
+        case '1': return ErrorType.UnknownToken;
+        case '2': return ErrorType.TooManyVariables;
+        case '3': return ErrorType.NotImplemented;
+        case '4': return ErrorType.InvalidExpression;
+        default: return ErrorType.Unknown;
     }
 }
 
@@ -39,7 +31,7 @@ function resultIsLabeledStrokes(maybeLabeledStrokes: any): maybeLabeledStrokes i
 
 async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | ComplexError> {
     try {
-        const response = await fetch("/strokes?" + new URLSearchParams({ f: f }).toString(), {
+        const response = await fetch("https://complex.pythonanywhere.com/strokes?" + new URLSearchParams({ f: f }).toString(), {
             method: 'POST',
             body: JSON.stringify({ z }),
         });
@@ -73,60 +65,74 @@ async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStroke
 function Main() {
     const [error, setError] = useState<ComplexError | null>(null);
     const [warning, setWarning] = useState<ComplexError | null>(null);
-    const [f, setF] = useState<string>('z');
     const [usePolar, setUsePolar] = useState(false);
     const [useRadian, setUseRadian] = useState(false);
+    const [recalcAllTrigger, setRecalcAllTrigger] = useState(0);
 
     const lines = useAppSelector(state => state.lines);
-    const storedFunction = useAppSelector(state => state.function);
     const result = useAppSelector(state => state.result);
     const drawRect = useAppSelector(state => state.drawingView);
     const resultRect = useAppSelector(state => state.resultView);
+    const userFunctions = useAppSelector(state => state.userFunctions); // array of { expression, color }
+    const triggerRecalcAll = () => setRecalcAllTrigger(prev => prev + 1);
+
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        const currentFunction = f.toLowerCase();
-        const newLines = currentFunction === storedFunction
-            ? lines.filter(line => !(result.map(r => r.id).includes(line.id)))
-            : lines;
-        getStrokes(newLines
-            .map((line) => scatterLine(line, 0.01))
-            .map((line) => [line.id, line.values]), currentFunction).then(res => {
-                if (res) {
-                    if (!resultIsLabeledStrokes(res)) {
-                        if (res.errorType === ErrorType.CannotConnect) {
-                            setWarning(res);
-                            setError(null);
-                        } else {
-                            setError(res);
-                            setWarning(null);
-                        }
-                        return;
-                    }
-                    setError(null);
-                    setWarning(null);
-                    if (currentFunction !== storedFunction) {
-                        dispatch(changeFunction(currentFunction));
-                    }
-                    dispatch(addResult(res.map(([id, value]) => {
-                        const proto = newLines.filter(l => l.id === id)[0];
-                        return {
-                            id: id,
-                            values: value,
-                            color: proto.color,
-                            type: proto.type === LineType.Dot ? LineType.Dot : LineType.Sharp
-                        };
-                    })));
+        if (userFunctions.length === 0) {
+            dispatch(addResult([])); // clear results maybe
+            return;
+        }
+
+        // If recalcAllTrigger changed, or lines/userFunctions changed
+        // On recalcAllTrigger increment, we recalc for all lines
+        const inputLines = recalcAllTrigger > 0 ? lines : lines.filter(line => !result.some(r => r.id === line.id));
+
+        if (inputLines.length === 0) {
+            dispatch(addResult([]));
+            return;
+        }
+
+        const fetches = userFunctions.map(({ expression, color }) => {
+            const lowerExpr = expression.toLowerCase();
+            return getStrokes(
+                inputLines.map(line => scatterLine(line, 0.01)).map(line => [line.id, line.values]),
+                lowerExpr
+            ).then(res => ({ res, color }));
+        });
+
+        Promise.all(fetches).then(resultsWithColors => {
+            let combinedResults: Line[] = [];
+
+            for (const { res, color } of resultsWithColors) {
+                if (!res) continue;
+                if (!resultIsLabeledStrokes(res)) {
+                    continue;
                 }
-            })
-    }, [lines, f]);
+
+                combinedResults.push(...res.map(([id, value]) => {
+                    const proto = inputLines.find(l => l.id === id);
+                    return {
+                        id,
+                        values: value,
+                        color,
+                        type: proto?.type === LineType.Dot ? LineType.Dot : LineType.Sharp,
+                    };
+                }));
+            }
+
+            dispatch(addResult(combinedResults));
+        });
+
+    }, [lines, userFunctions, recalcAllTrigger]);
+
+
 
     return (
         <div className="control-container">
             <Panel />
             <div className="flex moved-left">
-                <GraphInputComponent />
-                <FunctionForm polarMode={usePolar} error={error} warning={warning} onChange={(value) => setF(value)} />
+                <GraphInputComponent onRecalcAll={triggerRecalcAll} />
                 <div className='flex polar-label'>
                     <label>
                         <input
@@ -137,7 +143,7 @@ function Main() {
                         />
                         Полярные координаты
                     </label>
-                    {usePolar ?
+                    {usePolar &&
                         <label>
                             <input
                                 type="checkbox"
@@ -147,14 +153,12 @@ function Main() {
                             />
                             Радианная мера
                         </label>
-                        :
-                        null
                     }
                 </div>
             </div>
             <div className="graphs-container">
                 <div className="flex">
-                    <div className={'graph-with-settings'}>
+                    <div className='graph-with-settings'>
                         <ZoomableGraphWrapper viewRect={drawRect} changeViewRect={(rect) => dispatch(resizeDrawing(rect))}>
                             <GraphSettings viewRect={drawRect} changeViewRect={(rect) => dispatch(resizeDrawing(rect))} />
                             <Graph viewRect={drawRect} polarMode={usePolar} radianMode={useRadian}>
@@ -163,8 +167,7 @@ function Main() {
                         </ZoomableGraphWrapper>
                     </div>
                 </div>
-
-                <div className={'graph-with-settings'}>
+                <div className='graph-with-settings'>
                     <ZoomableGraphWrapper viewRect={resultRect} changeViewRect={(rect) => dispatch(resizeResult(rect))}>
                         <GraphSettings viewRect={resultRect} changeViewRect={(rect) => dispatch(resizeResult(rect))} />
                         <Graph viewRect={resultRect} polarMode={usePolar} radianMode={useRadian}>

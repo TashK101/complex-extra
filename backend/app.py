@@ -9,6 +9,18 @@ cors = CORS(app, origins=['http://localhost:5000', 'https://complex-variable.net
 
 known_equations: dict[str, Equation] = {} 
 
+def ensure_flat_list(val):
+    # If val is a list of complex numbers, return as is
+    if isinstance(val, list):
+        # Check if nested list, flatten once
+        if val and isinstance(val[0], list):
+            return [item for sublist in val for item in sublist]
+        else:
+            return val
+    else:
+        # Single complex number -> wrap in list
+        return [val]
+
 @app.route("/")
 def helloWorld():
   return "Hello, cross-origin-world!"
@@ -38,10 +50,11 @@ def main():
         response = []
     except ParserError as e:
         return f'{e.type.value} {e.text_value}', 400
+    response = []
     for label, z in z_array.labeled_points:
         x1, y1 = z.get_x(), z.get_y()
         fz = function(x1 + y1*1j)
-        print(f'Processed label {label}')
+        fz = ensure_flat_list(fz)
         response.append([label, [[w.real, w.imag] for w in fz]])
     print(f'Processed, sending back')
     return response
