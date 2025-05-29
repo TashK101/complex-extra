@@ -12,6 +12,8 @@ import { ComplexError, ErrorType, LineType } from "../types/const.ts";
 import { FunctionForm } from "../Components/Function/FunctionForm.tsx";
 import { GraphSettings } from "../Components/Graph/GraphSettings.tsx";
 import "./Main.css"
+import GraphInputComponent from "../Components/GraphInputComponent/GraphInputComponent.tsx";
+import { ZoomableGraphWrapper } from "../Components/Graph/ZoomableGraphWrapper.tsx";
 
 
 const errorRegex = '^(\\d+)\\s(.*)';
@@ -37,7 +39,7 @@ function resultIsLabeledStrokes(maybeLabeledStrokes: any): maybeLabeledStrokes i
 
 async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | ComplexError> {
     try {
-        const response = await fetch("https://complex.pythonanywhere.com/strokes?" + new URLSearchParams({ f: f }).toString(), {
+        const response = await fetch("/strokes?" + new URLSearchParams({ f: f }).toString(), {
             method: 'POST',
             body: JSON.stringify({ z }),
         });
@@ -123,51 +125,52 @@ function Main() {
         <div className="control-container">
             <Panel />
             <div className="flex moved-left">
+                <GraphInputComponent />
                 <FunctionForm polarMode={usePolar} error={error} warning={warning} onChange={(value) => setF(value)} />
-                    <div className='flex polar-label'>
+                <div className='flex polar-label'>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={usePolar}
+                            onChange={(e) => setUsePolar(e.target.checked)}
+                            title="В полярных координатах"
+                        />
+                        Полярные координаты
+                    </label>
+                    {usePolar ?
                         <label>
                             <input
                                 type="checkbox"
-                                checked={usePolar}
-                                onChange={(e) => setUsePolar(e.target.checked)}
-                                title="Ввод в полярных координатах"
+                                checked={useRadian}
+                                onChange={(e) => setUseRadian(e.target.checked)}
+                                title="Радианная мера"
                             />
-                            Полярные координаты
+                            Радианная мера
                         </label>
-                        {usePolar ?
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={useRadian}
-                                    onChange={(e) => setUseRadian(e.target.checked)}
-                                    title="Радианная мера"
-                                />
-                                Радианная мера
-                            </label>
-                            :
-                            null
-                        }
-                    </div>
+                        :
+                        null
+                    }
                 </div>
+            </div>
             <div className="graphs-container">
-
-                <div className='flex'>
-                    
+                <div className="flex">
                     <div className={'graph-with-settings'}>
-                        <GraphSettings viewRect={drawRect} changeViewRect={(rect) => dispatch(resizeDrawing(rect))} />
-                        <Graph viewRect={drawRect} polarMode={usePolar} radianMode={useRadian}>
-                            <DrawingPlane usePolar={usePolar} />
-                        </Graph>
+                        <ZoomableGraphWrapper viewRect={drawRect} changeViewRect={(rect) => dispatch(resizeDrawing(rect))}>
+                            <GraphSettings viewRect={drawRect} changeViewRect={(rect) => dispatch(resizeDrawing(rect))} />
+                            <Graph viewRect={drawRect} polarMode={usePolar} radianMode={useRadian}>
+                                <DrawingPlane usePolar={usePolar} />
+                            </Graph>
+                        </ZoomableGraphWrapper>
                     </div>
                 </div>
+
                 <div className={'graph-with-settings'}>
-
-                    <GraphSettings viewRect={resultRect} changeViewRect={(rect) => dispatch(resizeResult(rect))}>
-
-                    </GraphSettings>
-                    <Graph viewRect={resultRect} polarMode={usePolar} radianMode={useRadian}>
-                        <ResultPlane usePolar={usePolar} />
-                    </Graph>
+                    <ZoomableGraphWrapper viewRect={resultRect} changeViewRect={(rect) => dispatch(resizeResult(rect))}>
+                        <GraphSettings viewRect={resultRect} changeViewRect={(rect) => dispatch(resizeResult(rect))} />
+                        <Graph viewRect={resultRect} polarMode={usePolar} radianMode={useRadian}>
+                            <ResultPlane usePolar={usePolar} />
+                        </Graph>
+                    </ZoomableGraphWrapper>
                 </div>
             </div>
         </div>
