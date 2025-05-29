@@ -59,7 +59,7 @@ export function FunctionForm({error, warning, onChange, polarMode}: Props): Reac
                 className={'function-button'}
                 onClick={toggleOverlay}
             >
-                Ввести
+                Экранный ввод
             </button>
 
             {showOverlay && (
