@@ -21,12 +21,12 @@ section {
     font-weight: 500;
 }
 
-.single_about_details span {
-    background: #00bcd4 none repeat scroll 0 0;
-    display: block;
-    height: 3px;
-    margin: 20px 0;
-    width: 70px;
+.separator {
+  background: #00bcd4;
+  display: block;
+  height: 3px;
+  margin: 20px 0;
+  width: 70px;
 }
 
 .mb20 {
@@ -42,4 +42,37 @@ section {
 
 .single_about_details_img img {
     display: inline-block;
+}
+
+.collapsible {
+  margin: 20px 0;
+  border-left: 3px solid #00bcd4;
+  padding-left: 10px;
+}
+
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.arrow {
+  transition: transform 0.3s ease;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+.collapsible-content {
+  animation: fadeIn 0.3s ease-in;
+  padding-left: 10px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
