@@ -1,0 +1,50 @@
+.graph-settings-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 1px 12px;
+    border: 1px solid var(--accent-color, #ccc);
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+}
+
+.settings-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0;
+    color: var(--text-color, #333);
+    font-weight: 500;
+}
+
+.settings-input {
+    font-size: 0.85rem;
+    width: 2em;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    transition: border 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.settings-input:focus {
+    border-color: var(--accent-color, #007bff);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+}
+
+.settings-input-error {
+    border-color: var(--error-color, #e74c3c);
+    background-color: #ffeaea;
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: fit-content;
+    margin: 10px 0;
+}

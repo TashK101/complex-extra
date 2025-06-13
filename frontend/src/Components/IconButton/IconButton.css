@@ -1,0 +1,32 @@
+.icon-button {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-size: 16px;
+}
+
+.icon-button.secondary {
+    background-color: white;
+    border: 2px solid #007acc;
+    color: #007acc;
+}
+
+.icon-button.secondary:hover {
+    background-color: #007acc;
+    color: white;
+}
+
+.icon-button.primary {
+    background-color: #007acc;
+    color: white;
+    border: 2px solid transparent;
+}
+
+.icon-button.primary:hover {
+    background-color: #004b84;
+}

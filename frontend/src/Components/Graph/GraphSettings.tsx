@@ -1,12 +1,13 @@
-import {PropsWithChildren, useEffect, useState, useRef} from "react";
-import {ViewRectangle} from "../../types/const.ts";
+import { PropsWithChildren, useEffect, useState, useRef } from "react";
+import { ViewRectangle } from "../../types/const.ts";
+import './GraphSettings.css';
 
 type Props = PropsWithChildren<{
     viewRect: ViewRectangle,
     changeViewRect: (rect: ViewRectangle) => void,
 }>
 
-export function GraphSettings({viewRect, changeViewRect, children}: Props): React.JSX.Element {
+export function GraphSettings({ viewRect, changeViewRect, children }: Props): React.JSX.Element {
     const graphContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -77,7 +78,7 @@ export function GraphSettings({viewRect, changeViewRect, children}: Props): Reac
         y: `${(viewRect.top + viewRect.bottom) / 2}`,
         size: `${viewRect.right - viewRect.left}`,
     });
-    const [errors, setErrors] = useState<{ x: boolean, y: boolean, size: boolean }>({x: false, y: false, size: false});
+    const [errors, setErrors] = useState<{ x: boolean, y: boolean, size: boolean }>({ x: false, y: false, size: false });
 
     const handleChangeViewRect = () => {
         const [x, y, size] = [Number(values.x), Number(values.y), Number(values.size)];
@@ -104,7 +105,7 @@ export function GraphSettings({viewRect, changeViewRect, children}: Props): Reac
 
     const handleValueChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
         const name = evt.target.name;
-        setValues({...values, [name]: evt.target.value});
+        setValues({ ...values, [name]: evt.target.value });
     };
 
     return (

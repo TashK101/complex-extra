@@ -41,6 +41,11 @@ a {
 	text-decoration: none;
 }
 
+
+.nav .logo-accent {
+  color: #007acc;
+}
+
 /* menu */
 
 .nav .menu {
@@ -136,3 +141,4 @@ a {
 		display: none;
 	}
 }
+

@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
+import { ArrowRight, Keyboard, Plus } from 'lucide-react';
+import IconButton from '../IconButton/IconButton.tsx';
 import { v4 as uuidv4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '../../hooks/index.ts';
 import {
@@ -7,13 +9,19 @@ import {
     updateUserFunction
 } from '../../store/action.ts';
 import "./GraphInputComponent.css";
-import ArrowButton from './ArrowButton';
 import { OverlayKeyboard } from "../OverlayKeyboard/OverlayKeyboard.tsx";
+import { SymbolMap } from '../OverlayKeyboard/SymbolMap.tsx';
 
 const buttonColors: string[] = [
     '#990000', '#997700', '#006600', '#000099', '#000000',
     '#ff2222', '#ff9922', '#22c555', '#2255ff', '#cccccc',
 ];
+
+function getRandomColor() {
+    const hue = Math.floor(Math.random() * 360);
+    const pastel = `hsl(${hue}, 70%, 75%)`;
+    return pastel;
+}
 
 const GraphInputComponent = ({ onRecalcAll }) => {
     const dispatch = useAppDispatch();
@@ -23,29 +31,36 @@ const GraphInputComponent = ({ onRecalcAll }) => {
     const [showOverlay, setShowOverlay] = useState(false);
     const [caretPos, setCaretPos] = useState<{ start: number; end: number } | null>(null);
 
-
     const overlayRef = useRef<HTMLDivElement | null>(null);
-    const firstInputRef = useRef<HTMLInputElement | null>(null);
     const activeInputRef = useRef<HTMLInputElement | null>(null);
+    const toggleButtonRef = useRef<HTMLButtonElement | null>(null);
 
     useEffect(() => {
-        if (showOverlay && firstInputRef.current) {
-            firstInputRef.current.focus();
-            setFocusedInputId(inputs[0]?.id ?? null);
+        if (showOverlay && inputs.length > 0 && caretPos === null) {
+            const last = inputs[inputs.length - 1];
+            setFocusedInputId(last.id);
+
+            setTimeout(() => {
+                activeInputRef.current?.focus();
+                const pos = activeInputRef.current?.value.length ?? 0;
+                activeInputRef.current?.setSelectionRange(pos, pos);
+                setCaretPos({ start: pos, end: pos });
+            }, 0);
         }
-    }, [showOverlay, inputs]);
+    }, [showOverlay, inputs, caretPos]);
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Node;
 
-            // If click is inside the keyboard, ignore
-            if (overlayRef.current?.contains(target)) return;
+            if (
+                overlayRef.current?.contains(target) ||
+                toggleButtonRef.current?.contains(target) ||
+                (target instanceof HTMLElement && target.closest('.input-row'))
+            ) {
+                return;
+            }
 
-            // If click is inside any input, ignore
-            const isInput = (target instanceof HTMLElement) && target.tagName === 'INPUT';
-            if (isInput) return;
-
-            // Otherwise, it's outside
             setShowOverlay(false);
         };
 
@@ -69,12 +84,19 @@ const GraphInputComponent = ({ onRecalcAll }) => {
     }, [inputs.length, dispatch]);
 
     const addInput = () => {
-        const newColor = buttonColors[Math.floor(Math.random() * buttonColors.length)];
+        const newId = uuidv4();
+        const usedColors = inputs.map(f => f.color);
+        const availableColors = buttonColors.filter(c => !usedColors.includes(c));
+        const newColor = availableColors.length > 0
+            ? availableColors[0]
+            : getRandomColor();
         dispatch(addUserFunction({
-            id: uuidv4(),
+            id: newId,
             expression: 'z',
             color: newColor
         }));
+        setFocusedInputId(newId);
+        setCaretPos(null);
     };
 
     const removeInput = (id: string) => {
@@ -92,24 +114,24 @@ const GraphInputComponent = ({ onRecalcAll }) => {
         }));
     };
 
-    const handleSymbolSelect = (symbol: string) => {
+    const handleSymbolSelect = (symbolKey: string) => {
         const inputEl = activeInputRef.current;
         if (!inputEl || !focusedInputId || !caretPos) return;
 
+        const { insert, cursorOffset } = SymbolMap[symbolKey];
         const { start, end } = caretPos;
+
         const before = inputEl.value.slice(0, start);
         const after = inputEl.value.slice(end);
-        const newValue = before + symbol + after;
+        const newValue = before + insert + after;
 
-        // Set value manually
         inputEl.value = newValue;
-
-        // Restore caret after insertion
         inputEl.focus();
-        inputEl.setSelectionRange(start + symbol.length, start + symbol.length);
-        setCaretPos({ start: start + symbol.length, end: start + symbol.length });
 
-        // Update Redux
+        const newCaret = start + cursorOffset;
+        inputEl.setSelectionRange(newCaret, newCaret);
+        setCaretPos({ start: newCaret, end: newCaret });
+
         const func = inputs.find(f => f.id === focusedInputId);
         if (!func) return;
 
@@ -120,14 +142,13 @@ const GraphInputComponent = ({ onRecalcAll }) => {
         }));
     };
 
-
-
     const toggleOverlay = () => {
-        setShowOverlay(prev => !prev);
+        setTimeout(() => {
+            setShowOverlay(prev => !prev);
+        }, 0);
     };
 
     const handleRecalcAll = () => {
-        console.log('Recalculating all functions:', inputs);
         onRecalcAll();
     };
 
@@ -136,7 +157,7 @@ const GraphInputComponent = ({ onRecalcAll }) => {
             style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '10px',
+
                 padding: '20px',
                 borderRadius: '15px',
                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
@@ -144,28 +165,21 @@ const GraphInputComponent = ({ onRecalcAll }) => {
                 width: '300px',
             }}
         >
-            {inputs.map((input, index) => (
-                <div className='input-cross-container' key={input.id}>
-                    <div
-                        style={{
-                            display: 'flex',
-                            width: '100%',
-                            alignItems: 'center',
-                            border: '1px solid #ddd',
-                            borderRadius: '8px',
-                            padding: '5px 10px',
-                        }}
-                    >
+            {inputs.map((input) => (
+                <div className="input-row" key={input.id}>
+                    <div className="input-inner">
                         <input
                             ref={input.id === focusedInputId ? activeInputRef : null}
+                            value={input.expression}
+                            type="text"
+                            placeholder="Введите функцию"
                             onFocus={(e) => {
                                 setFocusedInputId(input.id);
                                 activeInputRef.current = e.currentTarget;
-                                const pos = {
+                                setCaretPos({
                                     start: e.currentTarget.selectionStart ?? 0,
                                     end: e.currentTarget.selectionEnd ?? 0,
-                                };
-                                setCaretPos(pos);
+                                });
                             }}
                             onSelect={(e) => {
                                 const target = e.currentTarget;
@@ -174,79 +188,38 @@ const GraphInputComponent = ({ onRecalcAll }) => {
                                     end: target.selectionEnd ?? 0,
                                 });
                             }}
-                            type="text"
-                            value={input.expression}
                             onChange={(e) => handleInputChange(e, input.id)}
-                            placeholder="Введите функцию"
-                            style={{
-                                flex: 1,
-                                padding: '8px',
-                                border: 'none',
-                                borderRadius: '5px',
-                                outline: 'none',
-                            }}
                         />
-                        <div
-                            style={{
-                                width: 24,
-                                height: 24,
-                                borderRadius: '50%',
-                                backgroundColor: input.color,
-                                marginLeft: 10,
-                            }}
-                        />
+                        <div className="color-dot" style={{ backgroundColor: input.color }} />
+                        <button className="remove-btn" onClick={() => removeInput(input.id)}>
+                            ×
+                        </button>
                     </div>
-                    <button
-                        onClick={() => removeInput(input.id)}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'grey',
-                            cursor: 'pointer',
-                            marginLeft: '5px',
-                        }}
-                        aria-label="Remove function"
-                    >
-                        X
-                    </button>
                 </div>
             ))}
 
-            <div
-                className='input-cross-container'
-                style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-            >
-                <button
+            <div className="icon-button-row">
+                <IconButton
+                    icon={<Plus size={20} />}
                     onClick={addInput}
-                    style={{
-                        padding: '10px',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        flexGrow: 1,
-                    }}
-                >
-                    Добавить функцию
-                </button>
-                <ArrowButton
+                    title="Добавить функцию"
+                    variant="secondary"
+                />
+                <IconButton
+                    icon={<Keyboard size={20} />}
+                    onClick={toggleOverlay}
+                    title={showOverlay ? 'Скрыть экранный ввод' : 'Экранный ввод'}
+                    ref={toggleButtonRef}
+                    variant="secondary"
+                    className={showOverlay ? 'active' : ''}
+                />
+                <IconButton
+                    icon={<ArrowRight size={20} />}
                     onClick={handleRecalcAll}
-                    backgroundColor='#111166'
-                    isDots={false}
+                    title="Пересчитать"
+                    variant="primary"
                 />
             </div>
-
-            <button
-                onClick={toggleOverlay}
-                style={{
-                    padding: '8px',
-                    borderRadius: '8px',
-                    backgroundColor: '#eee',
-                    border: '1px solid #ccc',
-                    cursor: 'pointer',
-                    marginTop: '10px',
-                }}
-            >
-                Экранный ввод
-            </button>
 
             {showOverlay && (
                 <div ref={overlayRef}>

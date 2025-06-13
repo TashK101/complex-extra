@@ -16,14 +16,13 @@ class Solver:
             result = []
             for z in z_list:
                 value = f(z)
-                # if value is list -> keep it, else wrap in list
                 result.append(value if isinstance(value, list) else [value])
             return result
 
         return wrapper
 
     @staticmethod
-    def get_lambda_function(exp: Expression) -> Callable[[complex], complex]:
+    def get_lambda_function(exp: Expression) -> Callable[[complex], complex | list[complex]]:
         if exp.type == ExpressionType.VAL:
             return Solver._get_solution_for_val(exp.value)
         if exp.type == ExpressionType.FUNC:
@@ -54,7 +53,6 @@ class Solver:
         else:
             return lambda z: z
 
-    # 'real', 'im', 'sin', 'cos', 'tg', 'asin', 'acos', 'atg', 'ln', 'abs', 'phi', 'sh', 'ch', 'th', 'cth', 'sch', 'csch'
     @staticmethod
     def _get_func1(f_name) -> Callable[[complex], complex]:
         if f_name == 'real':
@@ -79,24 +77,33 @@ class Solver:
             return lambda z: np.abs(z)
         if f_name == 'phi':
             return lambda z: cmath.phase(z)
-        # Hyperbolic functions
-        if f_name == 'sh':  # sinh (hyperbolic sine)
+        if f_name == 'sh':
             return lambda z: np.sinh(z)
-        if f_name == 'ch':  # cosh (hyperbolic cosine)
+        if f_name == 'ch':
             return lambda z: np.cosh(z)
-        if f_name == 'th':  # tanh (hyperbolic tangent)
+        if f_name == 'th':
             return lambda z: np.tanh(z)
-        if f_name == 'cth':  # coth (hyperbolic cotangent)
+        if f_name == 'cth':
             return lambda z: 1 / np.tanh(z)
-        if f_name == 'sch':  # sech (hyperbolic secant)
+        if f_name == 'sch':
             return lambda z: 1 / np.cosh(z)
-        if f_name == 'csch':  # csch (hyperbolic cosecant)
-            return lambda z: 1 / np.sinh(z) 
+        if f_name == 'csch':
+            return lambda z: 1 / np.sinh(z)
         raise ParserError(ParserErrorType.NOT_SUPPORTED, f_name)
 
-    # log, root
     @staticmethod
     def _get_func2(f_name):
+        def apply_func(f, x, y):
+            if not isinstance(x, list):
+                x = [x]
+            if not isinstance(y, list):
+                y = [y]
+            results = []
+            for a in x:
+                for b in y:
+                    results.extend(f(a, b))
+            return results
+
         if f_name == 'log':
             def multi_valued_log(x, base):
                 x = complex(x)
@@ -104,35 +111,41 @@ class Solver:
                 r = abs(x)
                 theta = cmath.phase(x)
                 logs = []
-                for k in range(-2, 3):  # 5 branches (k=-2 to 2), adjust as needed
+                for k in range(-2, 3):
                     logx = np.log(r) + 1j * (theta + 2 * np.pi * k)
                     logb = np.log(abs(base)) + 1j * cmath.phase(base)
                     logs.append(logx / logb)
                 return logs
-            return multi_valued_log
+            return lambda x, y: apply_func(multi_valued_log, x, y)
 
         if f_name == 'root':
             def multi_valued_root(x, n):
                 x = complex(x)
-                n = int(n.real)  # Assume n is real
+                n = int(n.real)
                 r = abs(x) ** (1 / n)
                 theta = cmath.phase(x)
-                roots = [r * cmath.exp(1j * (theta + 2 * np.pi * k) / n) for k in range(n)]
-                return roots
-            return multi_valued_root
+                return [r * cmath.exp(1j * (theta + 2 * np.pi * k) / n) for k in range(n)]
+            return lambda x, y: apply_func(multi_valued_root, x, y)
 
         raise ParserError(ParserErrorType.NOT_SUPPORTED, f_name)
-    
+
+    @staticmethod
+    def _apply_op(a, b, op):
+        if not isinstance(a, list):
+            a = [a]
+        if not isinstance(b, list):
+            b = [b]
+        return [op(x, y) for x in a for y in b]
 
     @staticmethod
     def _get_solution_for_func(exp: list[Expression | Token]) -> Callable[[complex], complex | list[complex]]:
         if exp[0].type == TokenType.FUNC1:
-            solve = Solver._get_func1(exp[0].value)  # func ( exp )
+            solve = Solver._get_func1(exp[0].value)
             return lambda z: solve((Solver.get_lambda_function(exp[2]))(z))
         elif exp[0].type == TokenType.FUNC2:
             func_name = exp[0].value
             solve1 = Solver.get_lambda_function(exp[2])
-            solve2 = Solver.get_lambda_function(exp[4])  # func ( exp , exp )
+            solve2 = Solver.get_lambda_function(exp[4])
             return lambda z: Solver._get_func2(func_name)(solve1(z), solve2(z))
         raise ParserError(ParserErrorType.NOT_SUPPORTED, exp[0].value)
 
@@ -142,7 +155,7 @@ class Solver:
         e_type = exp[0].type
         if e_type == TokenType.UNARY:
             if value == '-':
-                return lambda z: -(Solver.get_lambda_function(exp[1])(z))
+                return lambda z: -Solver.get_lambda_function(exp[1])(z)
         raise ParserError(ParserErrorType.NOT_SUPPORTED, value)
 
     @staticmethod
@@ -153,19 +166,21 @@ class Solver:
         raise ParserError(ParserErrorType.NOT_SUPPORTED, value)
 
     @staticmethod
-    def _get_solution_for_binary(exp: list[Expression | Token]) -> Callable[[complex], complex]:
+    def _get_solution_for_binary(exp: list[Expression | Token]) -> Callable[[complex], complex | list[complex]]:
         if exp[1].type == TokenType.BINARY:
             op = exp[1].value
             solve1 = Solver.get_lambda_function(exp[0])
             solve2 = Solver.get_lambda_function(exp[2])
+
             if op == '+':
-                return lambda z: solve1(z) + solve2(z)
+                return lambda z: Solver._apply_op(solve1(z), solve2(z), lambda x, y: x + y)
             if op == '-':
-                return lambda z: solve1(z) - solve2(z)
+                return lambda z: Solver._apply_op(solve1(z), solve2(z), lambda x, y: x - y)
             if op == '*':
-                return lambda z: solve1(z) * solve2(z)
+                return lambda z: Solver._apply_op(solve1(z), solve2(z), lambda x, y: x * y)
             if op == '/':
-                return lambda z: solve1(z) / solve2(z)
+                return lambda z: Solver._apply_op(solve1(z), solve2(z), lambda x, y: x / y)
             if op == '^':
-                return lambda z: solve1(z) ** solve2(z)
+                return lambda z: Solver._apply_op(solve1(z), solve2(z), lambda x, y: x ** y)
+
         raise ParserError(ParserErrorType.NOT_SUPPORTED, exp[1].value)

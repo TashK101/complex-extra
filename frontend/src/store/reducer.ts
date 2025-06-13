@@ -36,7 +36,7 @@ const initialState: State = {
     tool: Tool.Pencil,
     color: '#111166',
     function: 'z',
-    userFunctions: [{ id: uuidv4(), expression: 'z', color: '#111166' }],
+    userFunctions: [],
     drawingView: { top: 10, left: -10, right: 10, bottom: -10 },
     resultView: { top: 10, left: -10, right: 10, bottom: -10 },
     lines: [],
@@ -76,7 +76,8 @@ export const reducer = createReducer(initialState, (builder) => {
             }
         })
         .addCase(addResult, (state, action) => {
-            state.result = state.result.filter(l => !(action.payload.map(p => p.id).includes(l.id)));
+            const ownerIds = new Set(action.payload.map(p => p.ownerFuncId));
+            state.result = state.result.filter(l => !ownerIds.has(l.ownerFuncId));
             state.result.push(...action.payload);
         })
         .addCase(setGhost, (state, action) => {
@@ -94,11 +95,13 @@ export const reducer = createReducer(initialState, (builder) => {
             state.userFunctions.push(action.payload);
         })
         .addCase(removeUserFunction, (state, action) => {
-            // action.payload is id now
-            state.userFunctions = state.userFunctions.filter(f => f.id !== action.payload);
+            const removedFuncId = action.payload;
+
+            state.userFunctions = state.userFunctions.filter(f => f.id !== removedFuncId);
+
+            state.result = state.result.filter(line => line.ownerFuncId !== removedFuncId);
         })
         .addCase(updateUserFunction, (state, action) => {
-            // action.payload = { id, newExpr, color }
             const idx = state.userFunctions.findIndex(f => f.id === action.payload.id);
             if (idx !== -1) {
                 state.userFunctions[idx] = {

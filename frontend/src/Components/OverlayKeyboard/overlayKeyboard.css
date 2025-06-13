@@ -1,144 +1,117 @@
+.overlay-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
 .overlay {
     position: absolute;
-    top: 50px;
-    right: 0;
-    background-color: white;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    max-width: 500px;
+    background-color: #fefefe;
     border: 1px solid #ccc;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 10;
-    width: 30%;
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
 }
 
-.overlay-content {
+.tab-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    justify-content: space-around;
+    margin-bottom: 12px;
+    gap: 6px;
 }
 
-.overlay-button {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-}
-
-.overlay-close-button {
-    margin-top: 10px;
-    width: 100%;
-    background-color: hwb(251 0% 47%);
-    color: white;
-    padding: 5px;
-}
-
-.symbol-toggle-button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    font-size: 16px;
-}
-
-.function-form {
-    margin-top: 10px;
-    height: fit-content;
-    width: 30%;
-    border-radius: 2px;
-    min-width: fit-content;
-    box-sizing: border-box;
-    padding: 0 10px;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: center;
-    flex-grow: 1;
-}
-
-.function-form-error {
-    border-color: var(--error-color);
-}
-
-.function-form-warning {
-    border-color: var(--warning-color);
+.function-button,
+.function-button-inactive {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
 }
 
 .function-button {
-    border-radius: var(--border-radius);
-    background-color: lightskyblue;
+    background-color: #007acc;
     color: white;
-    border: var(--accent-color) 2px solid;
-    border-radius: 5px;
-    margin: 1px;
-}
-
-.function-button-overlay {
-    border-radius: var(--border-radius);
-    background-color: white;
-    
-    border: var(--accent-color) 3px solid;
-    margin: 1px;
 }
 
 .function-button-inactive {
-    border-radius: var(--border-radius);
-    background-color: skyblue;
-    color: rgb(0, 0, 0);
-    border: var(--accent-color) 2px solid;
-    border-radius: 5px;
-    margin: 1px;
+    background-color: #e0e0e0;
+    color: #333;
 }
 
-.function-button:hover {
-    background-color: lightblue;
+.function-button:hover,
+.function-button-inactive:hover {
+    background-color: #005fa3;
+    color: white;
 }
 
-.function-string, .settings-input {
-    display: block;
-    margin: 5px;
-    border-radius:5px;
+.overlay-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
-.function-string:focus-visible {
-    display: block;
-    border: 2px solid rgb(0, 95, 127);
-    margin: 5px;
-    border-radius:5px;
+.function-button-overlay {
+    background-color: white;
+    border: 2px solid #007acc;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
 }
 
-.function-string {
-    width: 10em;
+.function-button-overlay:hover {
+    background-color: #007acc;
+    color: white;
 }
 
-.graph-with-settings {
-    display: flex;
-    flex-direction: column;
-    width: min-content;
+.overlay-close-button {
+    width: 100%;
+    background-color: #250080;
+    color: white;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
 }
 
-.graph-settings-form {
-    display: flex;
-    border: 2px solid var(--accent-color-light);
-    border-radius: var(--border-radius);
-    padding: 0 10px;
-    justify-content: center;
-    flex-grow: 1;
+.overlay-close-button:hover {
+    background-color: #18005b;
 }
 
-.settings-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap-reverse;
+.overlay {
+    animation: fadeIn 0.2s ease-out;
 }
 
-.settings-input {
-    width: 2em;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.settings-input-error {
-    border-color: var(--error-color);
+input:focus {
+    caret-color: #007acc; 
 }
 
-.settings-label {
-    display: flex;
-    margin-right: 3px;
-    margin-left: 5px;
-    align-items: baseline;
+input:focus {
+    animation: caretHighlight 0.3s ease-out;
+}
+
+@keyframes caretHighlight {
+    0% {
+        background-color: #e0f4ff;
+    }
+    100% {
+        background-color: white;
+    }
 }

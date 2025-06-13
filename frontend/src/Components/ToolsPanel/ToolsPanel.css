@@ -15,7 +15,7 @@
     align-items: center;
     padding: 100% 0;
     z-index: 5;
-    background-color: #2d2d2d;
+    background-color: #007acc;
 }
 
 .tool-button {
@@ -25,20 +25,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #2d2d2d;
+    background-color: #007acc;
     border: none;
 }
 
 .tool-button:hover {
-    background-color: #565656;
+    background-color: #0060a9;
 }
 
-.tool-button:focus {
-    background-color: #6f6f6f;
-}
-
-.tool-button:active {
-    background-color: #6f6f6f;
+.tool-button-active {
+    background-color: #004b84;
+    outline: 2px solid #ffffff;
 }
 
 @supports not (aspect-ratio: 1 / 1) {

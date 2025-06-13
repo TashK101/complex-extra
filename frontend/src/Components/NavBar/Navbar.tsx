@@ -15,20 +15,22 @@ const Navbar = () => {
 
   return (
     <nav className="nav">
-      <Link to="/" className="logo">ComplexLab</Link>
-      
+      <Link to="/" className="logo">
+        Complex<span className="logo-accent">Lab</span>
+      </Link>
+
       {/* Menu toggle for mobile */}
-      <input 
-        className="menu-btn" 
-        type="checkbox" 
-        id="menu-btn" 
-        checked={isMenuOpen} 
-        onChange={handleMenuToggle} 
+      <input
+        className="menu-btn"
+        type="checkbox"
+        id="menu-btn"
+        checked={isMenuOpen}
+        onChange={handleMenuToggle}
       />
       <label className="menu-icon" htmlFor="menu-btn">
         <span className="navicon"></span>
       </label>
-      
+
       <ul className={`menu ${isMenuOpen ? 'active' : ''}`}>
         <li>
           <Link to="/" className="menu-link" onClick={closeMenu}>Главная</Link>
@@ -48,22 +50,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
-// const Navbar = () => {
-//   return (
-//     <nav className="nav">
-//     <Link to="/" className="logo">ComplexLab</Link>
-//     <input className="menuBtn" type="checkbox" id="menu-btn" />
-//     <label className="menuIcon" htmlFor="menuBtn"><span className="navicon"></span></label>
-//     <ul className="menu">
-//       <li><Link to="/">Главная</Link></li>
-//       <li><Link to="/about">О приложении</Link></li>
-//       <li><Link to="https://forms.gle/V31TnmqyMyaCtFcd7">Обратная связь</Link></li>
-//       <li><Link to="https://github.com/TashK101/complex-extra">GitHub</Link></li>
-//     </ul>
-//   </nav>
-//   )
-// }
-
-// export default Navbar;

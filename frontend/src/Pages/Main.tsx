@@ -80,12 +80,11 @@ function Main() {
 
     useEffect(() => {
         if (userFunctions.length === 0) {
-            dispatch(addResult([])); // clear results maybe
+            dispatch(addResult([]));
             return;
         }
 
-        // If recalcAllTrigger changed, or lines/userFunctions changed
-        // On recalcAllTrigger increment, we recalc for all lines
+
         const inputLines = recalcAllTrigger > 0 ? lines : lines.filter(line => !result.some(r => r.id === line.id));
 
         if (inputLines.length === 0) {
@@ -93,35 +92,41 @@ function Main() {
             return;
         }
 
-        const fetches = userFunctions.map(({ expression, color }) => {
+        const fetches = userFunctions.map(({ id: funcId, expression, color }) => {
             const lowerExpr = expression.toLowerCase();
             return getStrokes(
                 inputLines.map(line => scatterLine(line, 0.01)).map(line => [line.id, line.values]),
                 lowerExpr
-            ).then(res => ({ res, color }));
+            ).then(res => ({ res, color, funcId }));
         });
 
         Promise.all(fetches).then(resultsWithColors => {
-            let combinedResults: Line[] = [];
+            const currentFuncIds = userFunctions.map(f => f.id);
+            let updatedResults: Line[] = result.filter(line => currentFuncIds.includes(line.ownerFuncId));
 
-            for (const { res, color } of resultsWithColors) {
-                if (!res) continue;
-                if (!resultIsLabeledStrokes(res)) {
-                    continue;
-                }
+            for (const { res, color, funcId } of resultsWithColors) {
+                // Remove all previous lines for this function
+                updatedResults = updatedResults.filter(
+                    line => line.ownerFuncId !== funcId
+                );
 
-                combinedResults.push(...res.map(([id, value]) => {
-                    const proto = inputLines.find(l => l.id === id);
+                if (!res || !resultIsLabeledStrokes(res)) continue;
+
+                const newLines = res.map(([id, value]) => {
+                    const proto = lines.find(l => l.id === id);
                     return {
-                        id,
+                        id: Math.floor(Math.random() * 1e9), // still numeric
                         values: value,
                         color,
                         type: proto?.type === LineType.Dot ? LineType.Dot : LineType.Sharp,
+                        ownerFuncId: funcId,
                     };
-                }));
+                });
+
+                updatedResults.push(...newLines);
             }
 
-            dispatch(addResult(combinedResults));
+            dispatch(addResult(updatedResults));
         });
 
     }, [lines, userFunctions, recalcAllTrigger]);

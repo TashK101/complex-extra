@@ -9,4 +9,5 @@ export type Line = {
     color: string,
     values: zArray,
     type: LineType,
+    ownerFuncId?: string;
 }

@@ -1,0 +1,36 @@
+.styled-btn {
+  font-size: 1rem;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  user-select: none;
+}
+
+.styled-btn:active {
+  transform: scale(0.98);
+}
+
+.styled-btn.primary {
+  background-color: #111166;
+  color: white;
+}
+
+.styled-btn.primary:hover {
+  background-color: #222288;
+}
+
+.styled-btn.secondary {
+  background-color: #eee;
+  color: #333;
+  border: 1px solid #ccc;
+}
+
+.styled-btn.secondary:hover {
+  background-color: #ddd;
+}
+
+.full-width {
+  width: 100%;
+}

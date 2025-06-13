@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { ViewRectangle } from "../../types/const.ts";
+import './ZoomableGraphWrapper.css';
+
 
 type Props = {
     viewRect: ViewRectangle,
@@ -86,5 +88,5 @@ export function ZoomableGraphWrapper({ viewRect, changeViewRect, children }: Pro
         };
     }, [viewRect]);
 
-    return <div ref={wrapperRef}>{children}</div>;
+    return <div className="graph-with-settings" ref={wrapperRef}>{children}</div>;
 }

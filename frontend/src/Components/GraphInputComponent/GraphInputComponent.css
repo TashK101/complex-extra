@@ -2,3 +2,80 @@
     display: flex;
     justify-content: space-evenly;
 }
+
+.overlay-toggle-button {
+    padding: 8px;
+    border-radius: 8px;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.overlay-toggle-button:hover {
+    background-color: #ddd;
+}
+
+.input-row {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.input-row:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.input-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.input-inner input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.input-inner input:focus {
+  border-color: #6666ff;
+  outline: none;
+}
+
+.color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #999;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.remove-btn:hover {
+  color: #f33;
+}
+
+.icon-button-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+
+

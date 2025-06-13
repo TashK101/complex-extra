@@ -1,5 +1,4 @@
 import './ToolsPanel.css'
-import { useState } from 'react';
 import { IconPencilSharp } from "../../Icons/IconPencilSharp.tsx";
 import { IconShapeLine } from "../../Icons/IconShapeLine.tsx";
 import { IconShapeRectangle } from "../../Icons/IconShapeRectangle.tsx";
@@ -13,11 +12,6 @@ import { IconPencilDots } from "../../Icons/IconPencilDots.tsx";
 
 
 const Panel = () => {
-    const [panelVisible, setPanelVisible] = useState(true);
-
-    const togglePanelVisibility = () => {
-        setPanelVisible(prevState => !prevState);
-    };
 
     return (
         <>
@@ -42,10 +36,6 @@ const Panel = () => {
                 </ToolButton>
                 <DeleteButton />
                 <ColorButton />
-                {/* <button className="hide-panel-btn" onClick={togglePanelVisibility}>
-                    {panelVisible ? 'Hide Panel' : 'Show Panel'}
-                </button> */}
-
             </div>
             <div className={"tools-placeholder"} />
         </>
