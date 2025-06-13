@@ -4,11 +4,8 @@ import {DrawLine} from "./Drawing/DrawLine.ts";
 import {useAppDispatch, useAppSelector} from "../../hooks";
 import {resizeResult} from "../../store/action.ts";
 
-interface ResultPlaneProps {
-    usePolar: boolean;
-} 
 
-export function ResultPlane({usePolar}: ResultPlaneProps): React.JSX.Element {
+export function ResultPlane(): React.JSX.Element {
     const boxRef = useRef<HTMLDivElement>(null);
     const {height, width} = useBoxRect(boxRef);
     const result = useAppSelector(state => state.result);

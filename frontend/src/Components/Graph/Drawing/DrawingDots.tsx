@@ -7,7 +7,6 @@ type Props = {
 }
 
 export const DrawingDots = ({ line, transparent, getPixelCoords }: Props) => {
-    const [x, y] = getPixelCoords(line.values[0]);
     return (
         <>
             {line.values.map((point, index) => {

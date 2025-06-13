@@ -9,13 +9,16 @@ import { ColorButton } from "./ColorButton.tsx";
 import { DeleteButton } from "./DeleteButton.tsx";
 import { IconShapeOval2 } from "../../Icons/IconShapeOval2.tsx";
 import { IconPencilDots } from "../../Icons/IconPencilDots.tsx";
-
+import { Hand } from 'lucide-react';
 
 const Panel = () => {
 
     return (
         <>
             <div className={"tools-panel"}>
+                <ToolButton tool={Tool.Pan} description={'Переместиться'}>
+                    <Hand style={{ filter: 'invert(1)' }} />
+                </ToolButton>
                 <ToolButton tool={Tool.Dot} description={'Точка'}>
                     <IconPencilDots />
                 </ToolButton>

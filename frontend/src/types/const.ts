@@ -5,7 +5,8 @@ export enum Tool {
     Ellipse = 'Ellipse',
     Rectangle = 'Rectangle',
     Line = 'Line',
-    ModeSwitch = 'ModeSwitch'
+    ModeSwitch = 'ModeSwitch',
+    Pan = 'Pan',
 }
 
 export enum LineType {

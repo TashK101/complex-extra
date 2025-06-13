@@ -1,17 +1,19 @@
 import { useEffect, useRef } from "react";
-import { ViewRectangle } from "../../types/const.ts";
+import { Tool, ViewRectangle } from "../../types/const.ts";
 import './ZoomableGraphWrapper.css';
-
 
 type Props = {
     viewRect: ViewRectangle,
     changeViewRect: (rect: ViewRectangle) => void,
     children: React.ReactNode,
+    activeTool?: Tool, // optional, for tool checks
 };
 
-export function ZoomableGraphWrapper({ viewRect, changeViewRect, children }: Props) {
+export function ZoomableGraphWrapper({ viewRect, changeViewRect, children, activeTool }: Props) {
     const wrapperRef = useRef<HTMLDivElement>(null);
-
+    const isDragging = useRef(false);
+    const lastMouseX = useRef(0);
+    const lastMouseY = useRef(0);
     useEffect(() => {
         let initialDistance: number | null = null;
 
@@ -23,11 +25,9 @@ export function ZoomableGraphWrapper({ viewRect, changeViewRect, children }: Pro
             const zoomFactor = 1.1;
             const scale = e.deltaY < 0 ? 1 / zoomFactor : zoomFactor;
 
-            // Calculate mouse position in pixels relative to the graph container
             const px = e.clientX - rect.left;
             const py = e.clientY - rect.top;
 
-            // Convert to graph coordinates
             const viewWidth = rect.width;
             const viewHeight = rect.height;
 
@@ -45,7 +45,47 @@ export function ZoomableGraphWrapper({ viewRect, changeViewRect, children }: Pro
             });
         };
 
+        const handleMouseDown = (e: MouseEvent) => {
+            if (!wrapperRef.current?.contains(e.target as Node)) return;
+            if (e.button !== 0) return;
+            if (activeTool && activeTool !== Tool.Pan) return;
 
+            isDragging.current = true;
+            lastMouseX.current = e.clientX;
+            lastMouseY.current = e.clientY;
+        };
+
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isDragging.current) return;
+
+            const dx = e.clientX - lastMouseX.current;
+            const dy = e.clientY - lastMouseY.current;
+            lastMouseX.current = e.clientX;
+            lastMouseY.current = e.clientY;
+
+            const rect = wrapperRef.current!.getBoundingClientRect();
+            const width = viewRect.right - viewRect.left;
+            const height = viewRect.top - viewRect.bottom;
+
+            const dxGraph = dx / rect.width * width;
+            const dyGraph = dy / rect.height * height;
+
+            changeViewRect({
+                left: viewRect.left - dxGraph,
+                right: viewRect.right - dxGraph,
+                top: viewRect.top + dyGraph,
+                bottom: viewRect.bottom + dyGraph,
+            });
+        };
+
+        const handleMouseUp = () => {
+            isDragging.current = false;
+        };
+
+        const handleMouseLeave = () => {
+            isDragging.current = false;
+        };
+        
         const handleTouchStart = (e: TouchEvent) => {
             if (e.touches.length === 2) {
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -78,15 +118,23 @@ export function ZoomableGraphWrapper({ viewRect, changeViewRect, children }: Pro
 
         const ref = wrapperRef.current;
         ref?.addEventListener("wheel", handleWheel, { passive: false });
+        ref?.addEventListener("mousedown", handleMouseDown);
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mouseup", handleMouseUp);
+        ref?.addEventListener("mouseleave", handleMouseLeave);
         ref?.addEventListener("touchstart", handleTouchStart, { passive: false });
         ref?.addEventListener("touchmove", handleTouchMove, { passive: false });
 
         return () => {
             ref?.removeEventListener("wheel", handleWheel);
+            ref?.removeEventListener("mousedown", handleMouseDown);
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mouseup", handleMouseUp);
+            ref?.removeEventListener("mouseleave", handleMouseLeave);
             ref?.removeEventListener("touchstart", handleTouchStart);
             ref?.removeEventListener("touchmove", handleTouchMove);
         };
-    }, [viewRect]);
+    }, [viewRect, activeTool]);
 
     return <div className="graph-with-settings" ref={wrapperRef}>{children}</div>;
 }

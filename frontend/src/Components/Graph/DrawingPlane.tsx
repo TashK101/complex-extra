@@ -1,11 +1,11 @@
-import {useBoxRect} from "../../hooks/useBoxRect.ts";
-import {useEffect, useMemo, useRef, useState} from "react";
-import {useAppDispatch, useAppSelector} from "../../hooks";
-import {addLine, eraseLine, setGhost} from "../../store/action.ts";
-import {LineType, Tool} from "../../types/const.ts";
-import {DrawLine} from "./Drawing/DrawLine.ts";
-import {useMousePositionOnPlane} from "../../hooks/useMousePositionOnPlane.ts";
-import {Line} from "../../types/lines.ts";
+import { useBoxRect } from "../../hooks/useBoxRect.ts";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { addLine, eraseLine, setGhost } from "../../store/action.ts";
+import { LineType, Tool } from "../../types/const.ts";
+import { DrawLine } from "./Drawing/DrawLine.ts";
+import { useMousePositionOnPlane } from "../../hooks/useMousePositionOnPlane.ts";
+import { Line } from "../../types/lines.ts";
 
 const lineRegex = 'graph-drawing-line-(\\d+)';
 
@@ -13,9 +13,9 @@ interface DrawingPlaneProps {
     usePolar: boolean;
 }
 
-export function DrawingPlane({usePolar}: DrawingPlaneProps): JSX.Element {
+export function DrawingPlane({ usePolar }: DrawingPlaneProps): JSX.Element {
     const boxRef = useRef<HTMLDivElement>(null);
-    const {height, width} = useBoxRect(boxRef);
+    const { height, width } = useBoxRect(boxRef);
     const [cursorX, setCursorX] = useState<number | null>(null);
     const [cursorY, setCursorY] = useState<number | null>(null);
     const isDrawing = useRef(false);
@@ -28,15 +28,15 @@ export function DrawingPlane({usePolar}: DrawingPlaneProps): JSX.Element {
     const viewRect = useAppSelector(state => state.drawingView);
     const dispatch = useAppDispatch();
 
-    const {pixelX, pixelY, axisX, axisY, mouseX, mouseY} = useMousePositionOnPlane(viewRect, boxRef);
+    const { pixelX, pixelY, axisX, axisY, mouseX, mouseY } = useMousePositionOnPlane(viewRect, boxRef);
     const svgLines = useMemo(() => {
-        
+
         return lines.map(line => (
             <DrawLine
                 key={line.id}
                 line={line}
                 viewRect={viewRect}
-                box={{width, height}}
+                box={{ width, height }}
             />
         ))
     }, [lines, viewRect, width, height]);
@@ -94,24 +94,28 @@ export function DrawingPlane({usePolar}: DrawingPlaneProps): JSX.Element {
     }, [pixelX, pixelY]);
 
     useEffect(() => {
+        if (tool === Tool.Pan) return;
         if (axisX !== null && axisY !== null && isDrawing.current) {
             handleDraw(axisX, axisY);
         } else {
             currentLine && dispatch(setGhost(null));
         }
-    }, [axisX, axisY, isDrawing.current]);
+    }, [axisX, axisY, isDrawing.current, tool]);
 
     function handleMouseDown() {
+        if (tool === Tool.Pan) return;
         axisX !== null && axisY !== null && handleDraw(axisX, axisY);
         isDrawing.current = true;
     }
 
     function handleMouseUp() {
+        if (tool === Tool.Pan) return;
         isDrawing.current = false;
         dispatch(addLine());
     }
 
     function handleTouchEnd() {
+        if (tool === Tool.Pan) return;
         isDrawing.current = false;
         dispatch(addLine());
     }
@@ -161,6 +165,9 @@ export function DrawingPlane({usePolar}: DrawingPlaneProps): JSX.Element {
     return (
         <div
             className={'graph-draw graph-window'}
+            style={{
+                cursor: tool === Tool.Pan ? 'grab' : 'crosshair',
+            }}
             ref={boxRef}
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
@@ -172,32 +179,34 @@ export function DrawingPlane({usePolar}: DrawingPlaneProps): JSX.Element {
                 handleTouchEnd()
             }}
         >
-            {!usePolar &&
-            <div className={'graph-cursor-x'} style={{
-                position: 'absolute',
-                top: 0,
-                bottom: 0,
-                left: cursorX ?? 0,
-                width: cursorX ? 1 : 0,
-                backgroundColor: 'var(--accent-color)',
-            }}/> }
-            {!usePolar && <div className={'graph-cursor-y'} style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: cursorY ?? 0,
-                height: cursorY ? 1 : 0,
-                backgroundColor: 'var(--accent-color)',
-            }}/>}
-          
-            <svg style={{height: '100%', width: '100%'}}>
+            {!usePolar && tool !== Tool.Pan &&
+                <div className={'graph-cursor-x'} style={{
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    left: cursorX ?? 0,
+                    width: cursorX ? 1 : 0,
+                    backgroundColor: 'var(--accent-color)',
+                }} />}
+
+            {!usePolar && tool !== Tool.Pan &&
+                <div className={'graph-cursor-y'} style={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    top: cursorY ?? 0,
+                    height: cursorY ? 1 : 0,
+                    backgroundColor: 'var(--accent-color)',
+                }} />}
+
+            <svg style={{ height: '100%', width: '100%' }}>
                 {svgLines}
                 {polarGrid} {/* Render polar grid if usePolar is true */}
                 {centerLine} {/* Render the line from the center to the mouse */}
                 {currentLine && (<DrawLine
                     line={currentLine}
                     viewRect={viewRect}
-                    box={{width, height}}
+                    box={{ width, height }}
                     transparent
                 />)}
             </svg>

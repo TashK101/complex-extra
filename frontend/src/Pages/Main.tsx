@@ -31,7 +31,7 @@ function resultIsLabeledStrokes(maybeLabeledStrokes: any): maybeLabeledStrokes i
 
 async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | ComplexError> {
     try {
-        const response = await fetch("https://complex.pythonanywhere.com/strokes?" + new URLSearchParams({ f: f }).toString(), {
+        const response = await fetch("https://complex.pythonanywhere.com//strokes?" + new URLSearchParams({ f: f }).toString(), {
             method: 'POST',
             body: JSON.stringify({ z }),
         });
@@ -71,9 +71,10 @@ function Main() {
 
     const lines = useAppSelector(state => state.lines);
     const result = useAppSelector(state => state.result);
+    const activeTool = useAppSelector(state => state.tool);
     const drawRect = useAppSelector(state => state.drawingView);
     const resultRect = useAppSelector(state => state.resultView);
-    const userFunctions = useAppSelector(state => state.userFunctions); // array of { expression, color }
+    const userFunctions = useAppSelector(state => state.userFunctions); 
     const triggerRecalcAll = () => setRecalcAllTrigger(prev => prev + 1);
 
     const dispatch = useAppDispatch();
@@ -164,7 +165,7 @@ function Main() {
             <div className="graphs-container">
                 <div className="flex">
                     <div className='graph-with-settings'>
-                        <ZoomableGraphWrapper viewRect={drawRect} changeViewRect={(rect) => dispatch(resizeDrawing(rect))}>
+                        <ZoomableGraphWrapper viewRect={drawRect} changeViewRect={(rect) => dispatch(resizeDrawing(rect))} activeTool={activeTool}>
                             <GraphSettings viewRect={drawRect} changeViewRect={(rect) => dispatch(resizeDrawing(rect))} />
                             <Graph viewRect={drawRect} polarMode={usePolar} radianMode={useRadian}>
                                 <DrawingPlane usePolar={usePolar} />
@@ -173,10 +174,10 @@ function Main() {
                     </div>
                 </div>
                 <div className='graph-with-settings'>
-                    <ZoomableGraphWrapper viewRect={resultRect} changeViewRect={(rect) => dispatch(resizeResult(rect))}>
+                    <ZoomableGraphWrapper viewRect={resultRect} changeViewRect={(rect) => dispatch(resizeResult(rect))} activeTool={activeTool}>
                         <GraphSettings viewRect={resultRect} changeViewRect={(rect) => dispatch(resizeResult(rect))} />
                         <Graph viewRect={resultRect} polarMode={usePolar} radianMode={useRadian}>
-                            <ResultPlane usePolar={usePolar} />
+                            <ResultPlane />
                         </Graph>
                     </ZoomableGraphWrapper>
                 </div>
