@@ -45,7 +45,10 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ settings, onChange, o
                     Введенные функции в углу экрана
                 </label>
 
-                <label className="settings-number-label">
+                <label
+                    className="settings-number-label"
+                    title={`Показываются ${settings.lnBranches} ветвей со стороны положительного и ${settings.lnBranches} со стороны отрицательного направления (по 2πi) относительно главного значения`}
+                >
                     Показывать
                     <input
                         className="settings-number-input"
