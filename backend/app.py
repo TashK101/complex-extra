@@ -28,9 +28,11 @@ def helloWorld():
 @app.route("/strokes", methods=['GET', 'POST', 'OPTIONS'])
 def main():
     print(f"Got a request: {request}")
-    data = request.get_json(force=True)['z']
+    raw_data = request.get_json(force=True)
+    z_data = raw_data['z']
+    ln_branches = raw_data.get('lnBranches', 6)
     try:
-        z_array = ZLabeledArray(data)
+        z_array = ZLabeledArray(z_data)
         f = request.args.get('f')
     except TypeError:
         print(f'Bad request')
@@ -53,7 +55,7 @@ def main():
     response = []
     for label, z in z_array.labeled_points:
         x1, y1 = z.get_x(), z.get_y()
-        fz = function(x1 + y1*1j)
+        fz = function(x1 + y1*1j, num_branches=ln_branches)
         fz = ensure_flat_list(fz)
         response.append([label, [[w.real, w.imag] for w in fz]])
     print(f'Processed, sending back')

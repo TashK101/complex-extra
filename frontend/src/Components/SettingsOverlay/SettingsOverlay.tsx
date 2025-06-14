@@ -1,4 +1,5 @@
 import React from 'react';
+import Select from 'react-select';
 import '../OverlayKeyboard/OverlayKeyboard.css'
 import './SettingsOverlay.css';
 
@@ -14,6 +15,28 @@ interface SettingsOverlayProps {
 }
 
 const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ settings, onChange, onLnBranchesChange }) => {
+    const lnBranchOptions = [
+        { value: 0, label: 'Только главную ветвь' },
+        ...Array.from({ length: 49 }, (_, i) => {
+            const n = i + 1;
+            return {
+                value: n,
+                label: getBranchLabel(n)
+            };
+        })
+    ];
+
+    function getBranchLabel(n: number): string {
+        const count = n * 2 + 1;
+
+        const lastDigit = count % 10;
+        const lastTwo = count % 100;
+
+        if (lastDigit === 1 && lastTwo !== 11) return `${count} ветвь`;
+        if ([2, 3, 4].includes(lastDigit) && ![12, 13, 14].includes(lastTwo)) return `${count} ветви`;
+        return `${count} ветвей`;
+    }
+
     return (
         <div className="overlay">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -47,29 +70,22 @@ const SettingsOverlay: React.FC<SettingsOverlayProps> = ({ settings, onChange, o
 
                 <label
                     className="settings-number-label"
-                    title={`Показываются ${settings.lnBranches} ветвей со стороны положительного и ${settings.lnBranches} со стороны отрицательного направления (по 2πi) относительно главного значения`}
                 >
-                    Показывать
-                    <input
-                        className="settings-number-input"
-                        type="number"
-                        min={1}
-                        value={settings.lnBranches}
-                        onChange={(e) => {
-                            const raw = e.target.value;
-
-                            if (raw === '') {
-                                onLnBranchesChange(NaN);
-                                return;
-                            }
-
-                            const val = parseInt(e.target.value, 10);
-                            if (!isNaN(val) && val > 0) {
-                                onLnBranchesChange(val);
-                            }
-                        }}
-                    />
-                    значений для Ln(z)
+                    Для многозначных функций показывать:
+                    <div style={{ width: '80%' }}>
+                        <Select
+                            options={lnBranchOptions}
+                            value={lnBranchOptions.find(opt => opt.value === settings.lnBranches)}
+                            onChange={(selected) => {
+                                if (selected) onLnBranchesChange(selected.value);
+                            }}
+                            className="settings-select"
+                            classNamePrefix="select"
+                            isSearchable
+                            menuPlacement="auto"
+                            maxMenuHeight={160}
+                        />
+                    </div>
                 </label>
             </div>
         </div>

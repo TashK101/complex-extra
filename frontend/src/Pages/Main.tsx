@@ -29,11 +29,11 @@ function resultIsLabeledStrokes(maybeLabeledStrokes: any): maybeLabeledStrokes i
     return maybeLabeledStrokes instanceof Array;
 }
 
-async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | ComplexError> {
+async function getStrokes(z: zLabeledStrokes, f: string, lnBranches: number): Promise<zLabeledStrokes | ComplexError> {
     try {
         const response = await fetch("https://complex.pythonanywhere.com/strokes?" + new URLSearchParams({ f: f }).toString(), {
             method: 'POST',
-            body: JSON.stringify({ z }),
+            body: JSON.stringify({ z, lnBranches }),
         });
 
         if (response.status === 200) {
@@ -75,6 +75,8 @@ function Main() {
     const drawRect = useAppSelector(state => state.drawingView);
     const resultRect = useAppSelector(state => state.resultView);
     const userFunctions = useAppSelector(state => state.userFunctions); 
+    const lnBranches = useAppSelector(state => state.lnBranches);
+
     const triggerRecalcAll = () => setRecalcAllTrigger(prev => prev + 1);
 
     const dispatch = useAppDispatch();
@@ -97,7 +99,8 @@ function Main() {
             const lowerExpr = expression.toLowerCase();
             return getStrokes(
                 inputLines.map(line => scatterLine(line, 0.01)).map(line => [line.id, line.values]),
-                lowerExpr
+                lowerExpr,
+                lnBranches
             ).then(res => ({ res, color, funcId }));
         });
 

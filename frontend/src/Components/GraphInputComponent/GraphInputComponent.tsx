@@ -51,11 +51,12 @@ const GraphInputComponent = ({ onRecalcAll, onPolarChange, onRadianChange }: Gra
     const [settings, setSettings] = useState({
         polar: false,
         radians: false,
-        overlayDisplay: false
+        overlayDisplay: true
     });
 
     const handleLnBranchesChange = (value: number) => {
         dispatch(changeLnBranches(value));
+        onRecalcAll();
     };
 
 

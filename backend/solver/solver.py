@@ -12,10 +12,10 @@ class Solver:
     def get_lambda_for_array(exp: Expression) -> Callable[[list[complex]], list[list[complex]]]:
         f = Solver.get_lambda_function(exp)
 
-        def wrapper(z_list: list[complex]) -> list[list[complex]]:
+        def wrapper(z_list: list[complex], **kwargs) -> list[list[complex]]:
             result = []
             for z in z_list:
-                value = f(z)
+                value = f(z, **kwargs)
                 result.append(value if isinstance(value, list) else [value])
             return result
 
@@ -41,61 +41,61 @@ class Solver:
         e_type = exp[0].type
         if e_type == TokenType.CONST:
             if value == 'i':
-                return lambda z: 1j
+                return lambda z, **kwargs: 1j
             elif value == 'pi':
-                return lambda z: np.pi
+                return lambda z, **kwargs: np.pi
             elif value == 'e':
-                return lambda z: np.e
+                return lambda z, **kwargs: np.e
             else:
                 raise ParserError(ParserErrorType.NOT_SUPPORTED, value)
         elif e_type == TokenType.NUM:
-            return lambda x: float(value)
+            return lambda x, **kwargs: float(value)
         else:
-            return lambda z: z
+            return lambda z, **kwargs: z
 
     @staticmethod
     def _get_func1(f_name) -> Callable[[complex], complex]:
         if f_name == 'real':
-            return lambda z: z.real
+            return lambda z, **kwargs: z.real
         if f_name == 'im':
-            return lambda z: z.imag
+            return lambda z, **kwargs: z.imag
         if f_name == 'sin':
-            return lambda z: np.sin(z)
+            return lambda z, **kwargs: np.sin(z)
         if f_name == 'cos':
-            return lambda z: np.cos(z)
+            return lambda z, **kwargs: np.cos(z)
         if f_name == 'tg':
-            return lambda z: np.tan(z)
+            return lambda z, **kwargs: np.tan(z)
         if f_name == 'asin':
-            return lambda z: np.arcsin(z)
+            return lambda z, **kwargs: np.arcsin(z)
         if f_name == 'acos':
-            return lambda z: np.arccos(z)
+            return lambda z, **kwargs: np.arccos(z)
         if f_name == 'atg':
-            return lambda z: np.arctan(z)
+            return lambda z, **kwargs: np.arctan(z)
         if f_name == 'ln':
-            def ln_wrapper(z):
+            def ln_wrapper(z, num_branches=6, **kwargs):
                 if not isinstance(z, list):
                     z = [z]
                 results = []
                 for val in z:
-                    results.extend(Solver.multi_valued_log(val))
+                    results.extend(Solver.multi_valued_log(val, k_range=range(-num_branches, num_branches + 1)))
                 return results
             return ln_wrapper
         if f_name == 'abs':
-            return lambda z: np.abs(z)
+            return lambda z, **kwargs: np.abs(z)
         if f_name == 'phi':
-            return lambda z: cmath.phase(z)
+            return lambda z, **kwargs: cmath.phase(z)
         if f_name == 'sh':
-            return lambda z: np.sinh(z)
+            return lambda z, **kwargs: np.sinh(z)
         if f_name == 'ch':
-            return lambda z: np.cosh(z)
+            return lambda z, **kwargs: np.cosh(z)
         if f_name == 'th':
-            return lambda z: np.tanh(z)
+            return lambda z, **kwargs: np.tanh(z)
         if f_name == 'cth':
-            return lambda z: 1 / np.tanh(z)
+            return lambda z, **kwargs: 1 / np.tanh(z)
         if f_name == 'sch':
-            return lambda z: 1 / np.cosh(z)
+            return lambda z, **kwargs: 1 / np.cosh(z)
         if f_name == 'csch':
-            return lambda z: 1 / np.sinh(z)
+            return lambda z, **kwargs: 1 / np.sinh(z)
         raise ParserError(ParserErrorType.NOT_SUPPORTED, f_name)
 
     @staticmethod
@@ -137,12 +137,13 @@ class Solver:
     def _get_solution_for_func(exp: list[Expression | Token]) -> Callable[[complex], complex | list[complex]]:
         if exp[0].type == TokenType.FUNC1:
             solve = Solver._get_func1(exp[0].value)
-            return lambda z: solve((Solver.get_lambda_function(exp[2]))(z))
+            inner = Solver.get_lambda_function(exp[2])
+            return lambda z, **kwargs: solve(inner(z, **kwargs), **kwargs)
         elif exp[0].type == TokenType.FUNC2:
             func_name = exp[0].value
             solve1 = Solver.get_lambda_function(exp[2])
             solve2 = Solver.get_lambda_function(exp[4])
-            return lambda z: Solver._get_func2(func_name)(solve1(z), solve2(z))
+            return lambda z, **kwargs: Solver._get_func2(func_name)(solve1(z, **kwargs), solve2(z, **kwargs))
         raise ParserError(ParserErrorType.NOT_SUPPORTED, exp[0].value)
 
     @staticmethod
@@ -151,16 +152,16 @@ class Solver:
         e_type = exp[0].type
         if e_type == TokenType.UNARY:
             if value == '-':
-                return lambda z: -Solver.get_lambda_function(exp[1])(z)
+                return lambda z, **kwargs: -Solver.get_lambda_function(exp[1])(z, **kwargs)
         raise ParserError(ParserErrorType.NOT_SUPPORTED, value)
 
     @staticmethod
     def _get_solution_for_par(exp: list[Expression | Token]) -> Callable[[complex], complex]:
         value = exp[0].value
         if exp[0].type == TokenType.PARL and exp[2].type == TokenType.PARR:
-            return lambda z: Solver.get_lambda_function(exp[1])(z)
+            return lambda z, **kwargs: Solver.get_lambda_function(exp[1])(z, **kwargs)
         raise ParserError(ParserErrorType.NOT_SUPPORTED, value)
-    
+
     @staticmethod
     def multi_valued_log(x: complex, base: complex = np.e, k_range=range(-6, 6)) -> list[complex]:
         x = complex(x)
@@ -174,7 +175,6 @@ class Solver:
             logs.append(logx / logb)
         return logs
 
-
     @staticmethod
     def _get_solution_for_binary(exp: list[Expression | Token]) -> Callable[[complex], complex | list[complex]]:
         if exp[1].type == TokenType.BINARY:
@@ -183,14 +183,14 @@ class Solver:
             solve2 = Solver.get_lambda_function(exp[2])
 
             if op == '+':
-                return lambda z: Solver._apply_op(solve1(z), solve2(z), lambda x, y: x + y)
+                return lambda z, **kwargs: Solver._apply_op(solve1(z, **kwargs), solve2(z, **kwargs), lambda x, y: x + y)
             if op == '-':
-                return lambda z: Solver._apply_op(solve1(z), solve2(z), lambda x, y: x - y)
+                return lambda z, **kwargs: Solver._apply_op(solve1(z, **kwargs), solve2(z, **kwargs), lambda x, y: x - y)
             if op == '*':
-                return lambda z: Solver._apply_op(solve1(z), solve2(z), lambda x, y: x * y)
+                return lambda z, **kwargs: Solver._apply_op(solve1(z, **kwargs), solve2(z, **kwargs), lambda x, y: x * y)
             if op == '/':
-                return lambda z: Solver._apply_op(solve1(z), solve2(z), lambda x, y: x / y)
+                return lambda z, **kwargs: Solver._apply_op(solve1(z, **kwargs), solve2(z, **kwargs), lambda x, y: x / y)
             if op == '^':
-                return lambda z: Solver._apply_op(solve1(z), solve2(z), lambda x, y: x ** y)
+                return lambda z, **kwargs: Solver._apply_op(solve1(z, **kwargs), solve2(z, **kwargs), lambda x, y: x ** y)
 
         raise ParserError(ParserErrorType.NOT_SUPPORTED, exp[1].value)

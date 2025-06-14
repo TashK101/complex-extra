@@ -45,7 +45,7 @@ const initialState: State = {
     result: [],
     currentId: 0,
     ghost: null,
-    lnBranches: 6
+    lnBranches: 4
 };
 
 export const reducer = createReducer(initialState, (builder) => {
