@@ -106,18 +106,16 @@ const AboutSection = () => {
                   <li><code>sh(z)</code>, <code>ch(z)</code>, <code>th(z)</code>, <code>cth(z)</code></li>
                 </ul>
 
-                <p><strong>Функции двух аргументов:</strong></p>
+                <p><strong>Функция двух аргументов:</strong></p>
                 <ul>
-                  <li><code>log(z, b)</code> — логарифм по основанию <InlineMath math="b" /></li>
                   <li><code>root(z, n)</code> — корень n-й степени</li>
                 </ul>
 
                 <p><strong>Примеры допустимых выражений:</strong></p>
                 <ul>
                   <li><code>z^2 + 3*i - 1</code></li>
-                  <li><code>ln(z)</code></li>
+                  <li><code>Ln(z)</code></li>
                   <li><code>abs(root(z^2 + 1, 3))</code></li>
-                  <li><code>log(z, e)</code></li>
                 </ul>
               </Collapsible>
 

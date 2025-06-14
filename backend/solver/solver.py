@@ -72,7 +72,14 @@ class Solver:
         if f_name == 'atg':
             return lambda z: np.arctan(z)
         if f_name == 'ln':
-            return lambda z: np.log(z)
+            def ln_wrapper(z):
+                if not isinstance(z, list):
+                    z = [z]
+                results = []
+                for val in z:
+                    results.extend(Solver.multi_valued_log(val))
+                return results
+            return ln_wrapper
         if f_name == 'abs':
             return lambda z: np.abs(z)
         if f_name == 'phi':
@@ -105,18 +112,7 @@ class Solver:
             return results
 
         if f_name == 'log':
-            def multi_valued_log(x, base):
-                x = complex(x)
-                base = complex(base)
-                r = abs(x)
-                theta = cmath.phase(x)
-                logs = []
-                for k in range(-2, 3):
-                    logx = np.log(r) + 1j * (theta + 2 * np.pi * k)
-                    logb = np.log(abs(base)) + 1j * cmath.phase(base)
-                    logs.append(logx / logb)
-                return logs
-            return lambda x, y: apply_func(multi_valued_log, x, y)
+            return lambda x, y: apply_func(lambda a, b: Solver.multi_valued_log(a, b), x, y)
 
         if f_name == 'root':
             def multi_valued_root(x, n):
@@ -164,6 +160,20 @@ class Solver:
         if exp[0].type == TokenType.PARL and exp[2].type == TokenType.PARR:
             return lambda z: Solver.get_lambda_function(exp[1])(z)
         raise ParserError(ParserErrorType.NOT_SUPPORTED, value)
+    
+    @staticmethod
+    def multi_valued_log(x: complex, base: complex = np.e, k_range=range(-6, 6)) -> list[complex]:
+        x = complex(x)
+        base = complex(base)
+        r = abs(x)
+        theta = cmath.phase(x)
+        logs = []
+        logb = np.log(abs(base)) + 1j * cmath.phase(base)
+        for k in k_range:
+            logx = np.log(r) + 1j * (theta + 2 * np.pi * k)
+            logs.append(logx / logb)
+        return logs
+
 
     @staticmethod
     def _get_solution_for_binary(exp: list[Expression | Token]) -> Callable[[complex], complex | list[complex]]:

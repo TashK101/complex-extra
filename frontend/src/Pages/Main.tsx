@@ -31,7 +31,7 @@ function resultIsLabeledStrokes(maybeLabeledStrokes: any): maybeLabeledStrokes i
 
 async function getStrokes(z: zLabeledStrokes, f: string): Promise<zLabeledStrokes | ComplexError> {
     try {
-        const response = await fetch("https://complex.pythonanywhere.com//strokes?" + new URLSearchParams({ f: f }).toString(), {
+        const response = await fetch("https://complex.pythonanywhere.com/strokes?" + new URLSearchParams({ f: f }).toString(), {
             method: 'POST',
             body: JSON.stringify({ z }),
         });
@@ -138,29 +138,7 @@ function Main() {
         <div className="control-container">
             <Panel />
             <div className="flex moved-left">
-                <GraphInputComponent onRecalcAll={triggerRecalcAll} />
-                <div className='flex polar-label'>
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={usePolar}
-                            onChange={(e) => setUsePolar(e.target.checked)}
-                            title="В полярных координатах"
-                        />
-                        Полярные координаты
-                    </label>
-                    {usePolar &&
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={useRadian}
-                                onChange={(e) => setUseRadian(e.target.checked)}
-                                title="Радианная мера"
-                            />
-                            Радианная мера
-                        </label>
-                    }
-                </div>
+                <GraphInputComponent onRecalcAll={triggerRecalcAll} onPolarChange={setUsePolar} onRadianChange={setUseRadian} />
             </div>
             <div className="graphs-container">
                 <div className="flex">

@@ -1,10 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
-import { ArrowRight, Keyboard, Plus } from 'lucide-react';
+import { ArrowRight, Keyboard, Plus, Settings } from 'lucide-react';
 import IconButton from '../IconButton/IconButton.tsx';
+import SettingsOverlay from '../SettingsOverlay/SettingsOverlay.tsx';
+import FunctionOverlayBox from '../FunctionOverlayBox/FunctionOverlayBox.tsx';
 import { v4 as uuidv4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '../../hooks/index.ts';
 import {
     addUserFunction,
+    changeLnBranches,
     removeUserFunction,
     updateUserFunction
 } from '../../store/action.ts';
@@ -23,7 +26,13 @@ function getRandomColor() {
     return pastel;
 }
 
-const GraphInputComponent = ({ onRecalcAll }) => {
+interface GraphInputComponentProps {
+    onRecalcAll: () => void;
+    onPolarChange: (value: boolean) => void;
+    onRadianChange: (value: boolean) => void;
+}
+
+const GraphInputComponent = ({ onRecalcAll, onPolarChange, onRadianChange }: GraphInputComponentProps) => {
     const dispatch = useAppDispatch();
     const inputs = useAppSelector(state => state.userFunctions);
 
@@ -34,6 +43,21 @@ const GraphInputComponent = ({ onRecalcAll }) => {
     const overlayRef = useRef<HTMLDivElement | null>(null);
     const activeInputRef = useRef<HTMLInputElement | null>(null);
     const toggleButtonRef = useRef<HTMLButtonElement | null>(null);
+    const settingsRef = useRef<HTMLDivElement | null>(null);
+    const settingsButtonRef = useRef<HTMLButtonElement | null>(null);
+
+    const lnBranches = useAppSelector(state => state.lnBranches);
+    const [showSettings, setShowSettings] = useState(false);
+    const [settings, setSettings] = useState({
+        polar: false,
+        radians: false,
+        overlayDisplay: false
+    });
+
+    const handleLnBranchesChange = (value: number) => {
+        dispatch(changeLnBranches(value));
+    };
+
 
     useEffect(() => {
         if (showOverlay && inputs.length > 0 && caretPos === null) {
@@ -82,6 +106,29 @@ const GraphInputComponent = ({ onRecalcAll }) => {
             }));
         }
     }, [inputs.length, dispatch]);
+
+    useEffect(() => {
+        const handleClickOutsideSettings = (event: MouseEvent) => {
+            const target = event.target as Node;
+
+            if (
+                settingsRef.current?.contains(target) ||
+                settingsButtonRef.current?.contains(target)
+            ) {
+                return;
+            }
+
+            setShowSettings(false);
+        };
+
+        if (showSettings) {
+            document.addEventListener('mousedown', handleClickOutsideSettings);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutsideSettings);
+        };
+    }, [showSettings]);
 
     const addInput = () => {
         const newId = uuidv4();
@@ -147,6 +194,20 @@ const GraphInputComponent = ({ onRecalcAll }) => {
             setShowOverlay(prev => !prev);
         }, 0);
     };
+
+    const handleSettingToggle = (key: keyof typeof settings) => {
+        const updated = {
+            ...settings,
+            [key]: !settings[key],
+            ...(key === 'polar' && settings[key] ? { radians: false } : {})
+        };
+        setSettings(updated);
+
+        if (key === 'polar') onPolarChange(updated.polar);
+        if (key === 'radians') onRadianChange(updated.radians);
+    };
+
+
 
     const handleRecalcAll = () => {
         onRecalcAll();
@@ -214,6 +275,13 @@ const GraphInputComponent = ({ onRecalcAll }) => {
                     className={showOverlay ? 'active' : ''}
                 />
                 <IconButton
+                    icon={<Settings size={20} />}
+                    onClick={() => setShowSettings(prev => !prev)}
+                    title="Настройки"
+                    variant="secondary"
+                    ref={settingsButtonRef}
+                />
+                <IconButton
                     icon={<ArrowRight size={20} />}
                     onClick={handleRecalcAll}
                     title="Пересчитать"
@@ -228,6 +296,21 @@ const GraphInputComponent = ({ onRecalcAll }) => {
                         onClose={() => setShowOverlay(false)}
                     />
                 </div>
+            )}
+            {showSettings && (
+                <div className="overlay-wrapper" ref={settingsRef}>
+                    <SettingsOverlay
+                        settings={{
+                            ...settings,
+                            lnBranches: lnBranches,
+                        }}
+                        onChange={handleSettingToggle}
+                        onLnBranchesChange={handleLnBranchesChange}
+                    />
+                </div>
+            )}
+            {settings.overlayDisplay && (
+                <FunctionOverlayBox functions={inputs} />
             )}
         </div>
     );

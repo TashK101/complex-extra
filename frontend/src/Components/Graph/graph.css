@@ -9,6 +9,14 @@
     margin-left: auto;
     margin-right: 30px;
 }
+.graph-box {
+    touch-action: pinch-zoom;
+    border: 2px solid var(--accent-color);
+    border-radius: var(--border-radius);
+    max-width: calc(min(80vw, 80vh));
+    aspect-ratio: 1/1;
+    position: relative;
+}
 
 @media (max-width: 850px) {
     .graph-box {
@@ -24,14 +32,7 @@
     }
 }
 
-.graph-box {
-    touch-action: pinch-zoom;
-    border: 2px solid var(--accent-color);
-    border-radius: var(--border-radius);
-    max-width: calc(min(80vw, 80vh));
-    aspect-ratio: 1/1;
-    position: relative;
-}
+
 
 @supports not (aspect-ratio: 1 / 1) {
     .graph-box::before {
@@ -99,10 +100,6 @@
     user-select: none;
     padding: 0;
     margin: 0;
-}
-
-.graph-box {
-    width: 100%;
 }
 
 .graph-label-x {

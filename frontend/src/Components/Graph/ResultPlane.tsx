@@ -3,12 +3,14 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import {DrawLine} from "./Drawing/DrawLine.ts";
 import {useAppDispatch, useAppSelector} from "../../hooks";
 import {resizeResult} from "../../store/action.ts";
+import { Tool } from "../../types/const.ts";
 
 
 export function ResultPlane(): React.JSX.Element {
     const boxRef = useRef<HTMLDivElement>(null);
     const {height, width} = useBoxRect(boxRef);
     const result = useAppSelector(state => state.result);
+    const tool = useAppSelector(state => state.tool);
     const viewRect = useAppSelector(state => state.resultView);
     const dispatch = useAppDispatch();
 
@@ -43,7 +45,9 @@ export function ResultPlane(): React.JSX.Element {
     }, [result]);
 
     return (
-        <div className={'graph-show graph-window'} ref={boxRef}>
+        <div className={'graph-show graph-window'} ref={boxRef} style={{
+                        cursor: tool === Tool.Pan ? 'grab' : 'crosshair',
+                    }}>
             <svg style={{height: '100%', width: '100%'}}>
             
                 {result.map(line => (

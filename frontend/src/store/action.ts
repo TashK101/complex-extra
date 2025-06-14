@@ -29,3 +29,5 @@ export const addUserFunction = createAction<{ id: string, expression: string, co
 export const removeUserFunction = createAction<string>('removeUserFunction');  // payload is id
 
 export const updateUserFunction = createAction<{ id: string, newExpr: string, color: string }>('updateUserFunction');
+
+export const changeLnBranches = createAction<number>('settings/changeLnBranches');

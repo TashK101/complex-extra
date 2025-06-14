@@ -46,6 +46,15 @@ export function GraphSettings({ viewRect, changeViewRect, children }: Props): Re
         setValues({ ...values, [name]: evt.target.value });
     };
 
+    useEffect(() => {
+        const round = (num: number) => Number(num.toFixed(1));
+        setValues({
+            x: `${round((viewRect.left + viewRect.right) / 2)}`,
+            y: `${round((viewRect.top + viewRect.bottom) / 2)}`,
+            size: `${round(viewRect.right - viewRect.left)}`,
+        });
+    }, [viewRect]);
+
     return (
         <div className={'settings-container'} ref={graphContainerRef}>
             <form className={'graph-settings-form'}>

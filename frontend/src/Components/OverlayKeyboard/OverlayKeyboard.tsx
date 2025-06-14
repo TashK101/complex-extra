@@ -14,7 +14,8 @@ export function OverlayKeyboard({ onSelect, onClose }: Props): React.JSX.Element
 
     const tabs: Record<TabNames, string[]> = {
         operators: ['+', '-', '*', '/', '^'],
-        functions: ['real', 'im', 'sin', 'cos', 'tg', 'asin', 'acos', 'atg', 'ln', 'abs', 'phi', 'log', 'root', 'sh', 'ch', 'th', 'cth', 'sch', 'csch'],
+        // в функция нет log, но он парсится - обсудили с руководителем, оставляем только Ln, чтобы не путать пользователей
+        functions: ['real', 'im', 'sin', 'cos', 'tg', 'asin', 'acos', 'atg', 'Ln', 'abs', 'phi', 'root', 'sh', 'ch', 'th', 'cth', 'sch', 'csch'],
         constants: ['i', 'pi', 'e'],
         parentheses: ['(', ')', ',']
     };

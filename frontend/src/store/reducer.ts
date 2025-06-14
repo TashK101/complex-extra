@@ -15,7 +15,8 @@ import {
     setUserFunctions,
     addUserFunction,
     removeUserFunction,
-    updateUserFunction
+    updateUserFunction,
+    changeLnBranches
 } from "./action.ts";
 import { Line } from "../types/lines.ts";
 
@@ -30,6 +31,7 @@ type State = {
     result: Line[],
     currentId: number,
     ghost: Line | null,
+    lnBranches: number
 };
 
 const initialState: State = {
@@ -43,6 +45,7 @@ const initialState: State = {
     result: [],
     currentId: 0,
     ghost: null,
+    lnBranches: 6
 };
 
 export const reducer = createReducer(initialState, (builder) => {
@@ -110,5 +113,9 @@ export const reducer = createReducer(initialState, (builder) => {
                     color: action.payload.color
                 };
             }
-        });
+        })
+        .addCase(changeLnBranches, (state, action) => {
+            state.lnBranches = action.payload;
+        })
 });
+
