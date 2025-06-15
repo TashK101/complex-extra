@@ -65,12 +65,16 @@ class Solver:
             return lambda z, **kwargs: np.cos(z)
         if f_name == 'tg':
             return lambda z, **kwargs: np.tan(z)
+        if f_name == 'ctg':
+            return lambda z, **kwargs: 1 / np.tan(z)
         if f_name == 'asin':
-            return lambda z, **kwargs: np.arcsin(z)
+            return lambda z, num_branches=6, **kwargs: Solver.multi_valued_asin(z, k_range=range(-num_branches, num_branches + 1))
         if f_name == 'acos':
-            return lambda z, **kwargs: np.arccos(z)
+            return lambda z, num_branches=6, **kwargs: Solver.multi_valued_acos(z, range(-num_branches, num_branches + 1))
         if f_name == 'atg':
-            return lambda z, **kwargs: np.arctan(z)
+            return lambda z, num_branches=6, **kwargs: Solver.multi_valued_atg(z, range(-num_branches, num_branches + 1))
+        if f_name == 'actg':
+            return lambda z, num_branches=6, **kwargs: Solver.multi_valued_actg(z, range(-num_branches, num_branches + 1))
         if f_name == 'ln':
             def ln_wrapper(z, num_branches=6, **kwargs):
                 if not isinstance(z, list):
@@ -96,6 +100,14 @@ class Solver:
             return lambda z, **kwargs: 1 / np.cosh(z)
         if f_name == 'csch':
             return lambda z, **kwargs: 1 / np.sinh(z)
+        if f_name == 'arsh':
+            return lambda z, num_branches=6, **kwargs: Solver.multi_valued_arsh(z, range(-num_branches, num_branches + 1))
+        if f_name == 'arch':
+            return lambda z, num_branches=6, **kwargs: Solver.multi_valued_arch(z, range(-num_branches, num_branches + 1))
+        if f_name == 'arth':
+            return lambda z, num_branches=6, **kwargs: Solver.multi_valued_arth(z, range(-num_branches, num_branches + 1))
+        if f_name == 'arcth':
+            return lambda z, num_branches=6, **kwargs: Solver.multi_valued_arcth(z, range(-num_branches, num_branches + 1))
         raise ParserError(ParserErrorType.NOT_SUPPORTED, f_name)
 
     @staticmethod
@@ -125,6 +137,75 @@ class Solver:
 
         raise ParserError(ParserErrorType.NOT_SUPPORTED, f_name)
 
+    @staticmethod
+    def multi_valued_log(x: complex, base: complex = np.e, k_range=range(-6, 6)) -> list[complex]:
+        x = complex(x)
+        base = complex(base)
+        r = abs(x)
+        theta = cmath.phase(x)
+        logs = []
+        logb = np.log(abs(base)) + 1j * cmath.phase(base)
+        for k in k_range:
+            logx = np.log(r) + 1j * (theta + 2 * np.pi * k)
+            logs.append(logx / logb)
+        return logs
+    
+    @staticmethod
+    def multi_valued_asin(z: complex, k_range=range(-6, 6)) -> list[complex]:
+        z = complex(z)
+        root = cmath.sqrt(1 - z**2)
+        log_inputs = 1j * z + root
+        log_vals = Solver.multi_valued_log(log_inputs, k_range=k_range)
+        return [-1j * val for val in log_vals]
+    
+    @staticmethod
+    def multi_valued_acos(z: complex, k_range=range(-6, 6)) -> list[complex]:
+        z = complex(z)
+        root = cmath.sqrt(1 - z**2)
+        log_vals = Solver.multi_valued_log(z + root, k_range=k_range)
+        return [cmath.pi/2 - (-1j * val) for val in log_vals]  # acos = π/2 - asin(z)
+
+    @staticmethod
+    def multi_valued_atg(z: complex, k_range=range(-6, 6)) -> list[complex]:
+        z = complex(z)
+        log1 = Solver.multi_valued_log(1 + 1j * z, k_range=k_range)
+        log2 = Solver.multi_valued_log(1 - 1j * z, k_range=k_range)
+        return [0.5j * (a - b) for a in log1 for b in log2]
+
+    @staticmethod
+    def multi_valued_actg(z: complex, k_range=range(-6, 6)) -> list[complex]:
+        results = Solver.multi_valued_atg(1 / z, k_range=k_range)
+        return [cmath.pi/2 - w for w in results]
+
+    @staticmethod
+    def multi_valued_arsh(z: complex, k_range=range(-6, 6)) -> list[complex]:
+        z = complex(z)
+        root = cmath.sqrt(z**2 + 1)
+        log_vals = Solver.multi_valued_log(z + root, k_range=k_range)
+        return [val for val in log_vals]
+
+    @staticmethod
+    def multi_valued_arch(z: complex, k_range=range(-6, 6)) -> list[complex]:
+        z = complex(z)
+        root = cmath.sqrt(z**2 - 1)
+        log_vals = Solver.multi_valued_log(z + root, k_range=k_range)
+        return [val for val in log_vals]
+
+    @staticmethod
+    def multi_valued_arth(z: complex, k_range=range(-6, 6)) -> list[complex]:
+        z = complex(z)
+        log1 = Solver.multi_valued_log(1 + z, k_range=k_range)
+        log2 = Solver.multi_valued_log(1 - z, k_range=k_range)
+        return [0.5 * (a - b) for a in log1 for b in log2]
+
+    @staticmethod
+    def multi_valued_arcth(z: complex, k_range=range(-6, 6)) -> list[complex]:
+        z = complex(z)
+        inner = Solver.multi_valued_arth(1 / z, k_range=k_range)
+        return [1 / val for val in inner if val != 0]
+
+
+    
     @staticmethod
     def _apply_op(a, b, op):
         if not isinstance(a, list):
@@ -163,19 +244,6 @@ class Solver:
         raise ParserError(ParserErrorType.NOT_SUPPORTED, value)
 
     @staticmethod
-    def multi_valued_log(x: complex, base: complex = np.e, k_range=range(-6, 6)) -> list[complex]:
-        x = complex(x)
-        base = complex(base)
-        r = abs(x)
-        theta = cmath.phase(x)
-        logs = []
-        logb = np.log(abs(base)) + 1j * cmath.phase(base)
-        for k in k_range:
-            logx = np.log(r) + 1j * (theta + 2 * np.pi * k)
-            logs.append(logx / logb)
-        return logs
-
-    @staticmethod
     def _get_solution_for_binary(exp: list[Expression | Token]) -> Callable[[complex], complex | list[complex]]:
         if exp[1].type == TokenType.BINARY:
             op = exp[1].value
@@ -194,3 +262,8 @@ class Solver:
                 return lambda z, **kwargs: Solver._apply_op(solve1(z, **kwargs), solve2(z, **kwargs), lambda x, y: x ** y)
 
         raise ParserError(ParserErrorType.NOT_SUPPORTED, exp[1].value)
+    
+
+    
+    
+

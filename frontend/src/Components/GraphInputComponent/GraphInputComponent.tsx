@@ -9,7 +9,8 @@ import {
     addUserFunction,
     changeLnBranches,
     removeUserFunction,
-    updateUserFunction
+    updateUserFunction,
+    changeConnectTransformedDots
 } from '../../store/action.ts';
 import "./GraphInputComponent.css";
 import { OverlayKeyboard } from "../OverlayKeyboard/OverlayKeyboard.tsx";
@@ -47,6 +48,7 @@ const GraphInputComponent = ({ onRecalcAll, onPolarChange, onRadianChange }: Gra
     const settingsButtonRef = useRef<HTMLButtonElement | null>(null);
 
     const lnBranches = useAppSelector(state => state.lnBranches);
+    const connectTransformedDots = useAppSelector(state => state.connectTransformedDots);
     const [showSettings, setShowSettings] = useState(false);
     const [settings, setSettings] = useState({
         polar: false,
@@ -196,11 +198,16 @@ const GraphInputComponent = ({ onRecalcAll, onPolarChange, onRadianChange }: Gra
         }, 0);
     };
 
-    const handleSettingToggle = (key: keyof typeof settings) => {
+    const handleSettingToggle = (key: keyof typeof settings | 'connectTransformedDots') => {
+        if (key === 'connectTransformedDots') {
+            dispatch(changeConnectTransformedDots(!connectTransformedDots));
+            return;
+        }
+
         const updated = {
             ...settings,
             [key]: !settings[key],
-            ...(key === 'polar' && settings[key] ? { radians: false } : {})
+            ...(key === 'polar' && settings[key] ? { radians: true } : {}),
         };
         setSettings(updated);
 
@@ -304,6 +311,7 @@ const GraphInputComponent = ({ onRecalcAll, onPolarChange, onRadianChange }: Gra
                         settings={{
                             ...settings,
                             lnBranches: lnBranches,
+                            connectTransformedDots: connectTransformedDots,
                         }}
                         onChange={handleSettingToggle}
                         onLnBranchesChange={handleLnBranchesChange}

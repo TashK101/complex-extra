@@ -10,41 +10,44 @@ type Props = {
     line: Line,
     box: {width: number, height: number},
     viewRect: ViewRectangle,
-    transparent?: boolean
+    transparent?: boolean,
+    forceDots?: boolean
 }
 
-export function DrawLine({line, box, viewRect, transparent}: Props): React.JSX.Element {
+export function DrawLine({ line, box, viewRect, transparent, forceDots }: Props): React.JSX.Element {
 
     function getPixelCoords(point: [number, number]): [number, number] {
-        const {x, y} = axisCoordsToPixelCoords(point[0], point[1], box, viewRect);
+        const { x, y } = axisCoordsToPixelCoords(point[0], point[1], box, viewRect);
         return [x, y];
+    }
+
+    if (forceDots || line.type === LineType.Dot) {
+        return DrawingDots({
+            line,
+            transparent,
+            getPixelCoords
+        });
     }
 
     switch (line.type) {
         case LineType.Segment:
         case LineType.Sharp:
             return DrawingSharpLine({
-                line: line,
-                transparent: transparent,
-                getPixelCoords: getPixelCoords,
+                line,
+                transparent,
+                getPixelCoords
             });
         case LineType.Rectangle:
             return DrawingRectangleLine({
-                line: line,
-                transparent: transparent,
-                getPixelCoords: getPixelCoords,
+                line,
+                transparent,
+                getPixelCoords
             });
         case LineType.Ellipse:
             return DrawingEllipseLine({
-                line: line,
-                transparent: transparent,
-                getPixelCoords: getPixelCoords,
-            });
-        case LineType.Dot:
-            return DrawingDots({
-                line: line,
-                transparent: transparent,
-                getPixelCoords: getPixelCoords,
+                line,
+                transparent,
+                getPixelCoords
             });
         default:
             throw new Error();

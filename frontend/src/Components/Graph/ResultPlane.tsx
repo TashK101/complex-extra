@@ -12,6 +12,7 @@ export function ResultPlane(): React.JSX.Element {
     const result = useAppSelector(state => state.result);
     const tool = useAppSelector(state => state.tool);
     const viewRect = useAppSelector(state => state.resultView);
+    const connectTransformedDots = useAppSelector(state => state.connectTransformedDots);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -56,6 +57,7 @@ export function ResultPlane(): React.JSX.Element {
                         line={line}
                         viewRect={viewRect}
                         box={{width, height}}
+                        forceDots={!connectTransformedDots}
                     />
                 ))}
             </svg>

@@ -14,31 +14,80 @@ export function OverlayKeyboard({ onSelect, onClose }: Props): React.JSX.Element
 
     const tabs: Record<TabNames, string[]> = {
         operators: ['+', '-', '*', '/', '^'],
-        // в функция нет log, но он парсится - обсудили с руководителем, оставляем только Ln, чтобы не путать пользователей
-        functions: ['real', 'im', 'sin', 'cos', 'tg', 'asin', 'acos', 'atg', 'Ln', 'abs', 'phi', 'root', 'sh', 'ch', 'th', 'cth', 'sch', 'csch'],
+        // в функциях нет log и phi, но они парсятся - обсудили с руководителем, оставляем только Ln, чтобы не путать пользователей
+        functions: ['real', 'im', 'sin', 'cos', 'tg', 'ctg', 'Asin', 'Acos', 'Atg', 'Actg', 'Ln', 'abs', 'Root', 'sh', 'ch', 'th', 'cth', 'sch', 'csch', 'Arsh', 'Arch', 'Arth', 'Arcth'],
         constants: ['i', 'pi', 'e'],
         parentheses: ['(', ')', ',']
     };
 
+    const functionGroups = [
+        {
+            label: null,
+            symbols: ['real', 'im', 'abs', 'Root', 'Ln']
+        },
+        {
+            label: 'Тригонометрические и обратные к ним',
+            symbols: ['sin', 'cos', 'tg', 'ctg', 'Asin', 'Acos', 'Atg', 'Actg']
+        },
+        {
+            label: 'Гиперболические и обратные к ним',
+            symbols: ['sh', 'ch', 'th', 'cth', 'sch', 'csch', 'Arsh', 'Arch', 'Arth', 'Arcth']
+        }
+    ];
+
+
     function handleSymbolClick(evt: MouseEvent<HTMLButtonElement>) {
         const { value } = evt.currentTarget;
-        onSelect(value); 
+        onSelect(value);
     }
 
     const renderSymbols = () => {
+        if (activeTab === 'functions') {
+            return functionGroups.flatMap((group, index) => {
+                const elements = [];
+
+                if (group.label) {
+                    elements.push(
+                        <div key={`separator-${index}`} className="function-separator">
+                            <span>{group.label}</span>
+                        </div>
+                    );
+                }
+
+                elements.push(
+                    ...group.symbols.map((symbol) => (
+                        <button
+                            key={symbol}
+                            value={symbol}
+                            onClick={handleSymbolClick}
+                            className="function-button-overlay"
+                            type="button"
+                            title={SymbolMap[symbol].tooltip}
+                        >
+                            {SymbolMap[symbol].display}
+                        </button>
+                    ))
+                );
+
+                return elements;
+            });
+        }
+
         return tabs[activeTab].map((symbol) => (
             <button
                 key={symbol}
                 value={symbol}
                 onClick={handleSymbolClick}
-                className={'function-button-overlay'}
-                type="button" 
+                className="function-button-overlay"
+                type="button"
                 title={SymbolMap[symbol].tooltip}
             >
-                {SymbolMap[symbol].display} {}
+                {SymbolMap[symbol].display}
             </button>
         ));
     };
+
+
 
     return (
         <div className="overlay-wrapper">

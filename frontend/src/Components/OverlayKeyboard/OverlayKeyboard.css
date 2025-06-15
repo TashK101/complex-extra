@@ -115,3 +115,25 @@ input:focus {
         background-color: white;
     }
 }
+
+.function-separator {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.5);
+    position: relative;
+    text-align: center;
+    justify-content: center;
+}
+
+.function-separator span::before,
+.function-separator span::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    margin: 0 10px;
+    height: 1px;
+    display: block;
+}

@@ -74,7 +74,7 @@ function Main() {
     const activeTool = useAppSelector(state => state.tool);
     const drawRect = useAppSelector(state => state.drawingView);
     const resultRect = useAppSelector(state => state.resultView);
-    const userFunctions = useAppSelector(state => state.userFunctions); 
+    const userFunctions = useAppSelector(state => state.userFunctions);
     const lnBranches = useAppSelector(state => state.lnBranches);
 
     const triggerRecalcAll = () => setRecalcAllTrigger(prev => prev + 1);

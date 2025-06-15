@@ -85,7 +85,10 @@ class Expression:
 
 class Parser:
     constants = ['i', 'pi', 'e']
-    unary_functions = ['real', 'im', 'sin', 'cos', 'tg', 'asin', 'acos', 'atg', 'ln', 'abs', 'phi', 'sh', 'ch', 'th', 'cth', 'sch', 'csch']
+    unary_functions = [ 'real', 'im', 'sin', 'cos', 'tg', 'ctg',
+    'asin', 'acos', 'atg', 'actg', 'ln', 'abs', 'phi', 
+    'sh', 'ch', 'th', 'cth', 'sch', 'csch',
+    'arsh', 'arch', 'arth', 'arcth']
     binary_functions = ['log', 'root']
     keywords = {*constants, *unary_functions, *binary_functions}
     unary_operators = ['-']
