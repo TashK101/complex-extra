@@ -37,7 +37,7 @@ type State = {
 };
 
 const initialState: State = {
-    tool: Tool.Pencil,
+    tool: Tool.Line,
     color: '#111166',
     function: 'z',
     userFunctions: [],
