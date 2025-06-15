@@ -31,3 +31,5 @@ export const removeUserFunction = createAction<string>('removeUserFunction');  /
 export const updateUserFunction = createAction<{ id: string, newExpr: string, color: string }>('updateUserFunction');
 
 export const changeLnBranches = createAction<number>('settings/changeLnBranches');
+
+export const changeConnectTransformedDots = createAction<boolean>('settings/changeConnectTransformedDots');

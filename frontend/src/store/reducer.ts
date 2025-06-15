@@ -16,7 +16,8 @@ import {
     addUserFunction,
     removeUserFunction,
     updateUserFunction,
-    changeLnBranches
+    changeLnBranches,
+    changeConnectTransformedDots
 } from "./action.ts";
 import { Line } from "../types/lines.ts";
 
@@ -31,7 +32,8 @@ type State = {
     result: Line[],
     currentId: number,
     ghost: Line | null,
-    lnBranches: number
+    lnBranches: number,
+    connectTransformedDots: boolean
 };
 
 const initialState: State = {
@@ -45,7 +47,8 @@ const initialState: State = {
     result: [],
     currentId: 0,
     ghost: null,
-    lnBranches: 4
+    lnBranches: 4,
+    connectTransformedDots: false
 };
 
 export const reducer = createReducer(initialState, (builder) => {
@@ -117,5 +120,8 @@ export const reducer = createReducer(initialState, (builder) => {
         .addCase(changeLnBranches, (state, action) => {
             state.lnBranches = action.payload;
         })
+        .addCase(changeConnectTransformedDots, (state, action) => {
+            state.connectTransformedDots = action.payload;
+        });
 });
 
